@@ -1,7 +1,12 @@
 package uk.dupplaw.gitlab.wallboard.domain
 
-interface Message
+interface Message {
+    val type: String
+}
 
-data class HelloMessage(
-    val msg: String
-) : Message
+data class ProjectInfoMessage(
+    val id: String,
+    val name: String,
+) : Message {
+    override val type: String = "project-info"
+}

@@ -1,32 +1,24 @@
 package uk.dupplaw.gitlab.wallboard.endpoints
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import uk.dupplaw.gitlab.wallboard.domain.HelloMessage
-import uk.dupplaw.gitlab.wallboard.domain.Message
+import uk.dupplaw.gitlab.wallboard.domain.ProjectInfoMessage
+import uk.dupplaw.gitlab.wallboard.serialization.JsonEncoder
 import javax.enterprise.context.ApplicationScoped
 import javax.websocket.*
 import javax.websocket.server.ServerEndpoint
-
-class JsonEncoder : Encoder.Text<Message> {
-    override fun encode(msg: Message): String = ObjectMapper().writeValueAsString(msg)
-
-    override fun init(p0: EndpointConfig?) {
-        // Not required
-    }
-    override fun destroy() {
-        // Not required
-    }
-}
 
 @ServerEndpoint(value = "/api/ws/project-feed", encoders = [JsonEncoder::class])
 @ApplicationScoped
 class ProjectFeedWebsocket {
     @OnOpen
     fun onOpen(session: Session) {
-        println("onOpenJohnny>")
-        session.asyncRemote?.sendObject(
-            HelloMessage("Hello Johnny!")
-        ) ?: println("Didn't send initial message")
+        println("onOpen>")
+
+        val dummyProjects = listOf(
+            ProjectInfoMessage("1", "Dave's Project"),
+            ProjectInfoMessage("2", "Another Project")
+        )
+
+        dummyProjects.forEach { session.asyncRemote?.sendObject(it) }
     }
 
     @OnClose

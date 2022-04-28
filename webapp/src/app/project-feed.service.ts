@@ -1,9 +1,9 @@
 import {Injectable} from '@angular/core';
-import {map, Observable, Observer} from 'rxjs';
 import {environment} from '../environments/environment';
 import {webSocket, WebSocketSubject} from 'rxjs/webSocket';
 
 export interface ProjectFeedMessage {
+  type: string;
   id: string;
 }
 
