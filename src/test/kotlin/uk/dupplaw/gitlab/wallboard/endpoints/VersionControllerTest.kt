@@ -1,4 +1,4 @@
-package org.acme
+package uk.dupplaw.gitlab.wallboard.endpoints
 
 import io.quarkus.test.junit.QuarkusTest
 import io.restassured.RestAssured.given
@@ -6,15 +6,13 @@ import org.hamcrest.CoreMatchers.`is`
 import org.junit.jupiter.api.Test
 
 @QuarkusTest
-class GreetingResourceTest {
-
+class VersionControllerTest {
     @Test
-    fun testHelloEndpoint() {
+    fun testVersionEndpoint() {
         given()
-          .`when`().get("/hello")
+          .`when`().get("/api/version")
           .then()
              .statusCode(200)
-             .body(`is`("Hello RESTEasy"))
+             .body(`is`("1.0.0"))
     }
-
 }
