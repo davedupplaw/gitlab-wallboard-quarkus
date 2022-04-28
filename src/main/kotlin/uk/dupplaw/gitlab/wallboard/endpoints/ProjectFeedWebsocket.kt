@@ -7,10 +7,10 @@ import javax.websocket.server.ServerEndpoint
 @ServerEndpoint("/api/ws/project-feed")
 @ApplicationScoped
 class ProjectFeedWebsocket {
-
     @OnOpen
     fun onOpen(session: Session?) {
         println("onOpen>")
+        session?.asyncRemote?.sendText("Hello Johnny!")
     }
 
     @OnClose
