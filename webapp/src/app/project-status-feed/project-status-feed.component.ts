@@ -24,14 +24,17 @@ export class ProjectStatusFeedComponent implements OnInit {
 
   ngOnInit(): void {
     this.subsink.sink = this.feed.subscribe(project => {
-      switch(project.type) {
-        case 'project-info': { this.updateOrAddProject(project); break; }
+      switch (project.type) {
+        case 'project-info': {
+          this.updateOrAddProject((project as any) as Project);
+          break;
+        }
       }
       this.updateCards();
     });
   }
 
-  private updateOrAddProject(m: ProjectFeedMessage) {
+  private updateOrAddProject(m: Project) {
     const existing: any = this.data.find(p => p.id === m.id);
     if (existing) {
       Object.keys(m).filter(k => k !== "id").forEach(k => existing[k] = (m as any)[k]);
@@ -42,12 +45,22 @@ export class ProjectStatusFeedComponent implements OnInit {
 
   private updateCards() {
     d3.select(this.fixture?.nativeElement)
-      .selectAll('app-build-card')
+      .selectAll('div.build')
       .data(this.data)
       .join(
-        enter => enter.append('app-build-card'),
+        enter => this.buildCard(enter),
         update => update,
         exit => exit.remove()
       )
+    ;
+  }
+
+  private buildCard(enter: d3.Selection<d3.EnterElement, Project, HTMLDivElement, unknown>):
+    d3.Selection<HTMLDivElement, Project, HTMLDivElement, unknown> {
+    return enter
+      .append('div')
+      .attr('class', 'build')
+      .html(d => `${d.name}`)
+      ;
   }
 }

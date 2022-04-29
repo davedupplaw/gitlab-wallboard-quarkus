@@ -4,7 +4,6 @@ import {webSocket, WebSocketSubject} from 'rxjs/webSocket';
 
 export interface ProjectFeedMessage {
   type: string;
-  id: string;
 }
 
 @Injectable({

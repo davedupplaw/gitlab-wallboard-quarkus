@@ -13,10 +13,9 @@ class ProjectFeedWebsocket {
     fun onOpen(session: Session) {
         println("onOpen>")
 
-        val dummyProjects = listOf(
-            ProjectInfoMessage("1", "Dave's Project"),
-            ProjectInfoMessage("2", "Another Project")
-        )
+        val dummyProjects = (1..10).map {
+            ProjectInfoMessage(it.toString(), "Project $it")
+        }
 
         dummyProjects.forEach { session.asyncRemote?.sendObject(it) }
     }
