@@ -2,12 +2,35 @@ div.wrapper {
   display: flex;
   flex-wrap: wrap;
   background: #292929;
+  justify-content: center;
 
   ::ng-deep .build {
+    text-align: center;
+    padding: 4px;
     margin: 2px;
     min-width: 250px;
     height: 150px;
-    background: green;
+    background: #666666;
     border-radius: 5px;
+
+    a {
+      color: white;
+    }
+
+    &.success {
+      background: green;
+    }
+
+    &.fail {
+      background: darkred;
+    }
+
+    &.warning {
+      background: orange;
+    }
+
+    &.running {
+      background: darkblue;
+    }
   }
 }

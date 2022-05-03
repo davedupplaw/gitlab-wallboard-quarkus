@@ -1,12 +1,12 @@
 package uk.dupplaw.gitlab.wallboard.serialization
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import uk.dupplaw.gitlab.wallboard.domain.Message
+import uk.dupplaw.gitlab.wallboard.domain.AllowedOverWebsocket
 import javax.websocket.Encoder
 import javax.websocket.EndpointConfig
 
-class JsonEncoder : Encoder.Text<Message> {
-    override fun encode(msg: Message): String = ObjectMapper().writeValueAsString(msg)
+class JsonEncoder : Encoder.Text<AllowedOverWebsocket> {
+    override fun encode(msg: AllowedOverWebsocket): String = ObjectMapper().writeValueAsString(msg)
 
     override fun init(p0: EndpointConfig?) {
         // Not required
