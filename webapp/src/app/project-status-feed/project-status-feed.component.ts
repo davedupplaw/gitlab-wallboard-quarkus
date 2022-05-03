@@ -85,6 +85,10 @@ export class ProjectStatusFeedComponent implements OnInit {
         )
         .call(x => {
           x.call(x => x.select('.title').html(d => d.name))
+           .call(x => x.select('.id a')
+                       .attr('href', d => d.lastBuild?.buildUrl || '')
+                       .html(d => `#${d.lastBuild?.id || '??'}`))
+           .call(x => x.select('.user').html(d => `${d.lastBuild?.user}`))
            .classed('success', d => d.lastBuild?.status == 'SUCCESS')
            .classed('fail', d => d.lastBuild?.status == 'FAIL')
            .classed('running', d => d.lastBuild?.status == 'RUNNING')
@@ -98,10 +102,12 @@ export class ProjectStatusFeedComponent implements OnInit {
     d3.Selection<HTMLDivElement, Project, HTMLDivElement, unknown> {
     const div = enter.append('div').attr('class', 'build');
     div.append('div').attr('class', 'title').html(d => d.name);
-    div.append('div').attr('class', 'project-id').html(d => `id: ${d.id}`)
+    div.append('div').attr('class', 'project-id').html(d => `id: ${d.id}`);
+    div.append('div').attr('class', 'user').html(d => `${d.lastBuild?.user}`);
     div.append('div')
        .attr('class', 'id')
-       .append('a').attr('href', d => d.lastBuild?.buildUrl || '')
+       .append('a')
+       .attr('href', d => d.lastBuild?.buildUrl || '')
        .html(d => `#${d.lastBuild?.id || '??'}`);
     return div;
   }

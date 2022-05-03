@@ -20,5 +20,6 @@ data class Build(
     val projectId: Long,
     val buildUrl: String,
     val status: BuildStatus,
-    val lastBuild: String,
+    val lastBuildTimestamp: String,
+    val user: String
 ) : AllowedOverWebsocket

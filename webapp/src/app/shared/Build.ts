@@ -6,7 +6,8 @@ export class Build {
     public projectId: string,
     public buildUrl: string,
     public status: BuildStatus,
-    public lastUpdated: string
+    public lastUpdated: string,
+    public user: string
   ) {
   }
 }

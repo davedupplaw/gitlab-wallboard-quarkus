@@ -61,8 +61,9 @@ class GitLabCIBuildService(
                 }
                 val lastBuild = node.get("updated_at").asText()
                 val webUrl = node.get("web_url").asText()
+                val user = node.get("user").get("name").asText();
 
-                Build(id, projectId, webUrl, status, lastBuild)
+                Build(id, projectId, webUrl, status, lastBuild, user)
             }
         }
     }

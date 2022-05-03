@@ -15,6 +15,17 @@ div.wrapper {
 
     a {
       color: white;
+      text-decoration: none;
+      border-bottom: 1px dashed #BBBBBB;
+    }
+
+    .title {
+      font-size: 105%;
+      font-weight: bold;
+    }
+
+    .project-id {
+      font-size: 75%;
     }
 
     &.success {
