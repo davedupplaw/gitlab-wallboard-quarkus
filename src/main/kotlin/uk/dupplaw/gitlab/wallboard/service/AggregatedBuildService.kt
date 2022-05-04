@@ -16,8 +16,14 @@ class AggregatedBuildService(
     private val logger = KotlinLogging.logger {}
 
     override fun retrieveBuildInformation(project: Project): Build? {
-        logger.info { "Getting builds for $project" }
-        return buildServices().first { dealsWithProject(project) }.retrieveBuildInformation(project)
+        return try {
+            logger.info { "Getting builds for $project" }
+            buildServices().first { dealsWithProject(project) }.retrieveBuildInformation(project)
+        } catch(e: Exception) {
+            logger.error { "Caught exception getting build information" }
+            logger.error { e }
+            null
+        }
     }
 
     // TODO: This should utilise a mapping in the properties, or use a default
