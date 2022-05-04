@@ -1,0 +1,16 @@
+div {
+  display: inline-block;
+  padding: 0;
+  width: 20px;
+  height: 20px;
+
+  ::ng-deep svg {
+    margin: 0;
+
+    circle {
+      fill: darkred;
+      stroke: #690101;
+      stroke-width: 2px;
+    }
+  }
+}
