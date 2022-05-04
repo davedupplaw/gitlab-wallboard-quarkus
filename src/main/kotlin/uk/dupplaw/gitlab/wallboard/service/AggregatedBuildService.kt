@@ -1,8 +1,8 @@
 package uk.dupplaw.gitlab.wallboard.service
 
+import kotlinx.coroutines.flow.flow
 import mu.KotlinLogging
 import uk.dupplaw.gitlab.wallboard.config.BuildServiceConfiguration
-import uk.dupplaw.gitlab.wallboard.domain.Build
 import uk.dupplaw.gitlab.wallboard.domain.BuildService
 import uk.dupplaw.gitlab.wallboard.domain.Project
 import uk.dupplaw.gitlab.wallboard.service.gitlab.GitLabCIBuildService
@@ -15,14 +15,18 @@ class AggregatedBuildService(
 ) : BuildService {
     private val logger = KotlinLogging.logger {}
 
-    override fun retrieveBuildInformation(project: Project): Build? {
-        return try {
+    override fun retrieveBuildInformation(project: Project) = flow {
+        try {
             logger.info { "Getting builds for $project" }
-            buildServices().first { dealsWithProject(project) }.retrieveBuildInformation(project)
-        } catch(e: Exception) {
+            buildServices()
+                .firstOrNull { dealsWithProject(project) }
+                ?.retrieveBuildInformation(project)
+                ?.collect {
+                    emit(it)
+                }
+        } catch (e: Exception) {
             logger.error { "Caught exception getting build information" }
             logger.error { e }
-            null
         }
     }
 
@@ -31,7 +35,7 @@ class AggregatedBuildService(
 
     private fun buildServices() = buildServiceConfiguration.names.map { makeService(it) }
 
-    private fun makeService(name: String) = when(name) {
+    private fun makeService(name: String) = when (name) {
         "gitlab-ci" -> gitlabCIBuildService
         else -> throw IllegalArgumentException("Unknown build service $name")
     }

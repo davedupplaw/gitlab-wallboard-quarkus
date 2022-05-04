@@ -3,13 +3,15 @@ package uk.dupplaw.gitlab.wallboard.service
 import io.quarkus.runtime.StartupEvent
 import io.quarkus.vertx.ConsumeEvent
 import io.vertx.mutiny.core.eventbus.EventBus
-import kotlinx.coroutines.*
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import javax.enterprise.context.ApplicationScoped
 import javax.enterprise.event.Observes
-import kotlin.random.Random
 
 @ApplicationScoped
 class ProjectManager(
@@ -44,16 +46,12 @@ class ProjectManager(
 
             logger.info { "Projects: $projects" }
 
+            // Create a flow for each project's builds
             projects.forEach {
                 GlobalScope.launch {
-                    while (true) {
-                        buildService.retrieveBuildInformation(it)?.let { info ->
-                            eventBus.publish("build", info)
-                            projectCache[it.id] = info
-                        }
-                        val timeMillis = Random.nextLong(10_000, 15_000)
-                        logger.info { "Waiting $timeMillis ms before updating builds ${it.name}" }
-                        delay(timeMillis)
+                    buildService.retrieveBuildInformation(it).collect { info ->
+                        eventBus.publish("build", info)
+                        projectCache[it.id] = info
                     }
                 }
             }

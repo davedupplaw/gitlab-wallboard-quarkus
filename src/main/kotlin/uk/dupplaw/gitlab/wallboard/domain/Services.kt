@@ -7,5 +7,5 @@ interface SCMService {
 }
 
 interface BuildService {
-    fun retrieveBuildInformation(project: Project): Build?
+    fun retrieveBuildInformation(project: Project): Flow<Build>
 }

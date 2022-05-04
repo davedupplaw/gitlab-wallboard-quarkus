@@ -1,6 +1,8 @@
 package uk.dupplaw.gitlab.wallboard.service.gitlab
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.flow
 import mu.KotlinLogging
 import uk.dupplaw.gitlab.wallboard.config.GitLabCIBuildServiceConfiguration
 import uk.dupplaw.gitlab.wallboard.domain.Build
@@ -9,6 +11,7 @@ import uk.dupplaw.gitlab.wallboard.domain.BuildStatus
 import uk.dupplaw.gitlab.wallboard.domain.Project
 import java.net.URL
 import javax.enterprise.context.ApplicationScoped
+import kotlin.random.Random
 
 @ApplicationScoped
 class GitLabCIBuildService(
@@ -17,20 +20,31 @@ class GitLabCIBuildService(
     private val logger = KotlinLogging.logger {}
 
     private val baseUrl = "/api/v4"
-    private val pipelinesUrl = "$baseUrl/projects/:projectId/pipelines?simple=true&per_page=1&order_by=updated_at&sort=desc&ref=:ref"
+    private val pipelinesUrl =
+        "$baseUrl/projects/:projectId/pipelines?simple=true&per_page=1&order_by=updated_at&sort=desc&ref=:ref"
     private val pipelineUrl = "$baseUrl/projects/:projectId/pipelines/:pipelineId?simple=true"
 
-    override fun retrieveBuildInformation(project: Project) =
-        getLatestBuild(project.id)?.let {
-            getBuildInfo(project.id, it)
+    override fun retrieveBuildInformation(project: Project) = flow {
+        while (true) {
+            getLatestBuild(project.id)?.let {
+                emit(getBuildInfo(project.id, it))
+            }
+
+            val delayTimeMillis = Random.nextLong(
+                gitLabCIBuildServiceConfiguration.minRefreshTime,
+                gitLabCIBuildServiceConfiguration.maxRefreshTime
+            )
+            logger.info { "Waiting $delayTimeMillis ms before updating builds ${project.name}" }
+            delay(delayTimeMillis)
         }
+    }
 
     private fun getLatestBuild(projectId: Long): Long? {
         val projectUrl = "https://${gitLabCIBuildServiceConfiguration.host}$pipelinesUrl"
             .replace(":projectId", projectId.toString())
             .replace(":ref", gitLabCIBuildServiceConfiguration.ref)
 
-        logger.info { "Getting latest build at $projectUrl" }
+        logger.trace { "Getting latest build at $projectUrl" }
         return URL(projectUrl).openConnection().apply {
             readTimeout = 800
             connectTimeout = 200
@@ -45,7 +59,7 @@ class GitLabCIBuildService(
             .replace(":projectId", projectId.toString())
             .replace(":pipelineId", buildId.toString())
 
-        logger.info { "Getting build info: $buildUrl" }
+        logger.trace { "Getting build info: $buildUrl" }
         return URL(buildUrl).openConnection().apply {
             readTimeout = 800
             connectTimeout = 200

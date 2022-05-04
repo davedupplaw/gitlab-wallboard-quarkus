@@ -21,7 +21,7 @@ data class GitLabServiceConfiguration(
 @ApplicationScoped
 data class BuildServiceConfiguration(
     @ConfigProperty(name = "build.services") val names: List<String>,
-    val gitlabCIBuildServiceConfiguration: GitLabCIBuildServiceConfiguration
+    val gitlabCIBuildServiceConfiguration: GitLabCIBuildServiceConfiguration,
 )
 
 @ApplicationScoped
@@ -29,4 +29,6 @@ data class GitLabCIBuildServiceConfiguration(
     @ConfigProperty(name = "build.service.gitlab-ci.host") val host: String,
     @ConfigProperty(name = "build.service.gitlab-ci.token") val token: String,
     @ConfigProperty(name = "build.service.gitlab-ci.ref") val ref: String,
+    @ConfigProperty(name = "build.service.gitlab-ci.min-refresh-time") val minRefreshTime: Long,
+    @ConfigProperty(name = "build.service.gitlab-ci.max-refresh-time") val maxRefreshTime: Long,
 )
