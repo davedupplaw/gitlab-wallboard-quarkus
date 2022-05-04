@@ -1,17 +1,22 @@
-# uk.dupplaw.gitlab.wallboard Project
+# Deployable GitLab CI Wallboard
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
-
-If you want to learn more about Quarkus, please visit its website: https://quarkus.io/ .
+This project uses Quarkus for the backend, and Angular and d3 for the frontend.
 
 ## Running the application in dev mode
 
 You can run your application in dev mode that enables live coding using:
 ```shell script
-./mvnw compile quarkus:dev
+./mvnw compile quarkus:dev -Dui.dev
 ```
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at http://localhost:8080/q/dev/.
+This runs the backend on port 8080 with live-reloading and ensures the UI is also built.
+
+If you are developing the UI too, you need to run the following in a separate shell:
+```shell
+yarn proxy
+```
+This will run a proxied live-reloading frontend on port 4200. The proxy will proxy backend
+requests (`/api`) to port 8080 where the backend runs.
 
 ## Packaging and running the application
 
@@ -26,7 +31,7 @@ The application is now runnable using `java -jar target/quarkus-app/quarkus-run.
 
 If you want to build an _über-jar_, execute the following command:
 ```shell script
-./mvnw package -Dquarkus.package.type=uber-jar
+./mvnw package -Dquarkus.package.type=uber-jar -Dui.deps -Dui.dev
 ```
 
 The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
@@ -35,12 +40,12 @@ The application, packaged as an _über-jar_, is now runnable using `java -jar ta
 
 You can create a native executable using: 
 ```shell script
-./mvnw package -Pnative
+./mvnw package -Pnative -Dui.deps -Dui.dev
 ```
 
 Or, if you don't have GraalVM installed, you can run the native executable build in a container using: 
 ```shell script
-./mvnw package -Pnative -Dquarkus.native.container-build=true
+./mvnw package -Pnative -Dquarkus.native.container-build=true -Dui.deps -Dui.dev
 ```
 
 You can then execute your native executable with: `./target/uk.dupplaw.gitlab.wallboard-1.0.0-SNAPSHOT-runner`
@@ -53,16 +58,5 @@ If you want to learn more about building native executables, please consult http
 - Kotlin ([guide](https://quarkus.io/guides/kotlin)): Write your services in Kotlin
 - WebSockets ([guide](https://quarkus.io/guides/websockets)): WebSocket communication channel support
 
-## Provided Code
-
-### RESTEasy JAX-RS
-
-Easily start your RESTful Web Services
-
-[Related guide section...](https://quarkus.io/guides/getting-started#the-jax-rs-resources)
-
-### WebSockets
-
-WebSocket communication channel starter code
-
-[Related guide section...](https://quarkus.io/guides/websockets)
+# License
+Released under MIT license.
