@@ -81,40 +81,29 @@ export class ProjectStatusFeedComponent implements OnInit {
           d => (d as any).id
         )
         .join(
-          enter => this.buildCard(enter),
+          enter => ProjectStatusFeedComponent.buildCard(enter),
           update => update,
           exit => exit.remove()
         )
         .call(x => {
-          x.call(x => x.select('.title').html(d => d.name))
-           .call(x => x.select('.build-id a')
-                       .attr('href', d => d.lastBuild?.buildUrl || '')
-                       .html(d => `#${d.lastBuild?.id || '??'}`))
-           .call(x => x.select('.calendar')
-                       .html(d => `${
-                         d.lastBuild?.lastBuildTimestamp
-                           ? moment(d.lastBuild?.lastBuildTimestamp).fromNow()
-                           : '??'
-                       }`)
-           )
-           .call(x => x.select('.user').html(d => `${d.lastBuild?.user}`))
-           .classed('success', d => d.lastBuild?.status == 'SUCCESS')
-           .classed('fail', d => d.lastBuild?.status == 'FAIL')
-           .classed('running', d => d.lastBuild?.status == 'RUNNING')
-           .classed('warning', d => d.lastBuild?.status == 'WARNING')
+          x.call(x => x.select('.title').call(ProjectStatusFeedComponent.updateCardTitle))
+           .call(x => x.select('.build-id a').call(ProjectStatusFeedComponent.updateBuildInfo))
+           .call(x => x.select('.calendar').call(ProjectStatusFeedComponent.updateBuildTime))
+           .call(x => x.select('.user').call(ProjectStatusFeedComponent.updateBuildUser))
+           .call(ProjectStatusFeedComponent.updateBuildCardClass)
         })
       ;
     });
   }
 
-  private buildCard(enter: d3.Selection<d3.EnterElement, Project, HTMLDivElement, unknown>):
+  private static buildCard(enter: d3.Selection<d3.EnterElement, Project, HTMLDivElement, unknown>):
     d3.Selection<HTMLDivElement, Project, HTMLDivElement, unknown> {
 
     // <div class="build">...</div>
     const div = enter.append('div').attr('class', 'build');
 
     // <div class="title">{{name}}</div>
-    div.append('div').attr('class', 'title').html(d => d.name);
+    div.append('div').attr('class', 'title').call(ProjectStatusFeedComponent.updateCardTitle);
 
     // <div class="project-id">{{id}}</div>
     div.append('div').attr('class', 'project-id').html(d => `id: ${d.id}`);
@@ -123,24 +112,48 @@ export class ProjectStatusFeedComponent implements OnInit {
     const extra = div.append('div').attr('class', 'extra');
 
     // <div class="user">{{user}}</div>
-    extra.append('div').attr('class', 'user').html(d => `${d.lastBuild?.user}`);
+    extra.append('div').attr('class', 'user').call(ProjectStatusFeedComponent.updateBuildUser);
 
     // <span class="build-id"><a href={{buildUrl}}>#{{buildId}}</a></span>
     extra.append('span')
          .attr('class', 'build-id')
          .append('a')
-         .attr('href', d => d.lastBuild?.buildUrl || '')
-         .html(d => `#${d.lastBuild?.id || '??'}`);
+         .call(ProjectStatusFeedComponent.updateBuildInfo)
 
     // <span class="time">{{time}}</span>
     extra.append('span')
          .attr('class', 'calendar')
-         .html(d => `${
-           d.lastBuild?.lastBuildTimestamp
-             ? moment(d.lastBuild?.lastBuildTimestamp).fromNow()
-             : '??'
-         }`);
+         .call(ProjectStatusFeedComponent.updateBuildTime)
+    ;
 
     return div;
+  }
+
+  private static updateCardTitle(x: d3.Selection<any, any, any, any>): d3.Selection<any, any, any, any> {
+    return x.html(d => d.name);
+  }
+
+  private static updateBuildInfo(x: d3.Selection<any, any, any, any>): d3.Selection<any, any, any, any> {
+    return x.attr('href', d => d.lastBuild?.buildUrl || '')
+            .html(d => `#${d.lastBuild?.id || '??'}`)
+  }
+
+  private static updateBuildTime(x: d3.Selection<any, any, any, any>): d3.Selection<any, any, any, any> {
+    return x.html(d => `${
+      d.lastBuild?.lastBuildTimestamp
+        ? moment(d.lastBuild?.lastBuildTimestamp).fromNow()
+        : '??'
+    }`);
+  }
+
+  private static updateBuildUser(x: d3.Selection<any, any, any, any>): d3.Selection<any, any, any, any> {
+    return x.html(d => `${d.lastBuild?.user}`);
+  }
+
+  private static updateBuildCardClass(x: d3.Selection<any, any, any, any>): d3.Selection<any, any, any, any> {
+    return x.classed('success', d => d.lastBuild?.status == 'SUCCESS')
+            .classed('fail', d => d.lastBuild?.status == 'FAIL')
+            .classed('running', d => d.lastBuild?.status == 'RUNNING')
+            .classed('warning', d => d.lastBuild?.status == 'WARNING');
   }
 }
