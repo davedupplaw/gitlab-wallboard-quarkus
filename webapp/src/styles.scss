@@ -1,10 +1,13 @@
 /* You can add global styles to this file, and also import other style files */
-@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lato&display=swap');
 
 html, body {
   margin: 0;
   padding: 0;
-  background: #222;
   color: #eeeeee;
-  font-family: 'Source Sans Pro', sans-serif;
+  background:#3C454D;
+  font-family: Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;
+  font-size: 14px;
+  line-height: 1.4285em;
+  color: rgba(0,0,0,.87);
 }

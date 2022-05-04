@@ -1,11 +1,11 @@
 import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {ProjectFeedMessage, ProjectFeedService} from '../project-feed.service';
 import {SubSink} from 'subsink';
-import {WebSocketSubject} from 'rxjs/webSocket';
 import * as d3 from 'd3';
 import {Project} from '../shared/Project';
 import {Build, preferredBuildOrder} from "../shared/Build";
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject, Observer, Subject} from 'rxjs';
+import * as moment from 'moment';
 
 @Component({
   selector: 'app-project-status-feed',
@@ -14,7 +14,7 @@ import {BehaviorSubject} from 'rxjs';
 })
 export class ProjectStatusFeedComponent implements OnInit {
   private subsink = new SubSink();
-  private feed: WebSocketSubject<ProjectFeedMessage>;
+  private feed: Subject<ProjectFeedMessage>;
 
   private _data: { [key: string]: Project } = {}
   private data$: BehaviorSubject<{ [key: string]: Project }> = new BehaviorSubject(this._data);
@@ -27,18 +27,20 @@ export class ProjectStatusFeedComponent implements OnInit {
 
   ngOnInit(): void {
     this.updateCards();
-    this.subsink.sink = this.feed.subscribe(message => {
-      switch (message.type) {
-        case 'project-info': {
-          this.updateOrAddProject((message as any) as Project);
-          break;
-        }
-        case 'build-info': {
-          this.updateBuild((message as any) as Build);
-          break;
+    this.subsink.sink = this.feed.subscribe({
+      next: (message: ProjectFeedMessage) => {
+        switch (message.type) {
+          case 'project-info': {
+            this.updateOrAddProject((message as any) as Project);
+            break;
+          }
+          case 'build-info': {
+            this.updateBuild((message as any) as Build);
+            break;
+          }
         }
       }
-    });
+    } as Observer<ProjectFeedMessage>);
   }
 
   private updateOrAddProject(project: Project) {
@@ -85,9 +87,16 @@ export class ProjectStatusFeedComponent implements OnInit {
         )
         .call(x => {
           x.call(x => x.select('.title').html(d => d.name))
-           .call(x => x.select('.id a')
+           .call(x => x.select('.build-id a')
                        .attr('href', d => d.lastBuild?.buildUrl || '')
                        .html(d => `#${d.lastBuild?.id || '??'}`))
+           .call(x => x.select('.calendar')
+                       .html(d => `${
+                         d.lastBuild?.lastBuildTimestamp
+                           ? moment(d.lastBuild?.lastBuildTimestamp).fromNow()
+                           : '??'
+                       }`)
+           )
            .call(x => x.select('.user').html(d => `${d.lastBuild?.user}`))
            .classed('success', d => d.lastBuild?.status == 'SUCCESS')
            .classed('fail', d => d.lastBuild?.status == 'FAIL')
@@ -100,15 +109,38 @@ export class ProjectStatusFeedComponent implements OnInit {
 
   private buildCard(enter: d3.Selection<d3.EnterElement, Project, HTMLDivElement, unknown>):
     d3.Selection<HTMLDivElement, Project, HTMLDivElement, unknown> {
+
+    // <div class="build">...</div>
     const div = enter.append('div').attr('class', 'build');
+
+    // <div class="title">{{name}}</div>
     div.append('div').attr('class', 'title').html(d => d.name);
+
+    // <div class="project-id">{{id}}</div>
     div.append('div').attr('class', 'project-id').html(d => `id: ${d.id}`);
-    div.append('div').attr('class', 'user').html(d => `${d.lastBuild?.user}`);
-    div.append('div')
-       .attr('class', 'id')
-       .append('a')
-       .attr('href', d => d.lastBuild?.buildUrl || '')
-       .html(d => `#${d.lastBuild?.id || '??'}`);
+
+    // <div class="extra">...</div>
+    const extra = div.append('div').attr('class', 'extra');
+
+    // <div class="user">{{user}}</div>
+    extra.append('div').attr('class', 'user').html(d => `${d.lastBuild?.user}`);
+
+    // <span class="build-id"><a href={{buildUrl}}>#{{buildId}}</a></span>
+    extra.append('span')
+         .attr('class', 'build-id')
+         .append('a')
+         .attr('href', d => d.lastBuild?.buildUrl || '')
+         .html(d => `#${d.lastBuild?.id || '??'}`);
+
+    // <span class="time">{{time}}</span>
+    extra.append('span')
+         .attr('class', 'calendar')
+         .html(d => `${
+           d.lastBuild?.lastBuildTimestamp
+             ? moment(d.lastBuild?.lastBuildTimestamp).fromNow()
+             : '??'
+         }`);
+
     return div;
   }
 }

@@ -20,6 +20,7 @@ div.wrapper {
     }
 
     .title {
+      color: white;
       font-size: 105%;
       font-weight: bold;
     }
@@ -29,11 +30,11 @@ div.wrapper {
     }
 
     &.success {
-      background: green;
+      background: #00AD68;
     }
 
     &.fail {
-      background: darkred;
+      background: #E7484D;
     }
 
     &.warning {
@@ -41,7 +42,40 @@ div.wrapper {
     }
 
     &.running {
-      background: darkblue;
+      background: #2d9fd8;
+    }
+
+    .extra {
+      border-top: 1px solid rgba(0, 0, 0, .05) !important;
+      position: static;
+      margin: 0;
+      padding: .75em 1em;
+      color: rgba(0, 0, 0, .4);
+
+      .user {
+        display: block;
+        text-align: left;
+      }
+
+      .build-id {
+        display: inline-block;
+        float: left;
+      }
+
+      .calendar {
+        display: inline-block;
+        float: right;
+      }
+
+      &::after {
+        display: block;
+        content: ' ';
+        clear: both;
+      }
+
+      a {
+        color: rgba(0, 0, 0, .4);
+      }
     }
   }
 }
