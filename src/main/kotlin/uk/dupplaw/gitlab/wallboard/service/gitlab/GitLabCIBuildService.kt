@@ -17,7 +17,7 @@ class GitLabCIBuildService(
     private val logger = KotlinLogging.logger {}
 
     private val baseUrl = "/api/v4"
-    private val pipelinesUrl = "$baseUrl/projects/:projectId/pipelines?simple=true&per_page=1&order_by=updated_at&sort=desc&ref=master"
+    private val pipelinesUrl = "$baseUrl/projects/:projectId/pipelines?simple=true&per_page=1&order_by=updated_at&sort=desc&ref=:ref"
     private val pipelineUrl = "$baseUrl/projects/:projectId/pipelines/:pipelineId?simple=true"
 
     override fun retrieveBuildInformation(project: Project) =
@@ -28,6 +28,7 @@ class GitLabCIBuildService(
     private fun getLatestBuild(projectId: Long): Long? {
         val projectUrl = "https://${gitLabCIBuildServiceConfiguration.host}$pipelinesUrl"
             .replace(":projectId", projectId.toString())
+            .replace(":ref", gitLabCIBuildServiceConfiguration.ref)
 
         logger.info { "Getting latest build at $projectUrl" }
         return URL(projectUrl).openConnection().apply {
@@ -52,7 +53,8 @@ class GitLabCIBuildService(
         }.getInputStream().use { ins ->
             ObjectMapper().readTree(ins).let { node ->
                 val id = node.get("id").asLong()
-                val status = when (node.get("status").asText()) {
+                val actualStatus = node.get("status").asText()
+                val status = when (actualStatus) {
                     "success" -> BuildStatus.SUCCESS
                     "failed" -> BuildStatus.FAIL
                     "canceled", "skipped" -> BuildStatus.WARNING
@@ -61,9 +63,17 @@ class GitLabCIBuildService(
                 }
                 val lastBuild = node.get("updated_at").asText()
                 val webUrl = node.get("web_url").asText()
-                val user = node.get("user").get("name").asText();
+                val user = node.get("user").get("name").asText()
 
-                Build(id, projectId, webUrl, status, lastBuild, user)
+                Build(
+                    id = id,
+                    projectId = projectId,
+                    buildUrl = webUrl,
+                    status = status,
+                    lastBuildTimestamp = lastBuild,
+                    user = user,
+                    failReason = actualStatus
+                )
             }
         }
     }

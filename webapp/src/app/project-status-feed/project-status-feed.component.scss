@@ -1,7 +1,7 @@
 div.wrapper {
   display: flex;
   flex-wrap: wrap;
-  background: #292929;
+  background: var(--background);
   justify-content: center;
 
   ::ng-deep .build {
@@ -52,8 +52,13 @@ div.wrapper {
       padding: .75em 1em;
       color: rgba(0, 0, 0, .4);
 
+      div {
+        clear: both;
+      }
+
       .user {
-        display: block;
+        display: inline-block;
+        float: left;
         text-align: left;
       }
 
@@ -63,6 +68,11 @@ div.wrapper {
       }
 
       .calendar {
+        display: inline-block;
+        float: right;
+      }
+
+      .status {
         display: inline-block;
         float: right;
       }

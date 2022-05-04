@@ -1,6 +1,8 @@
 import {Component, OnInit} from '@angular/core';
-import {map, Observable, take} from 'rxjs';
+import {BehaviorSubject} from 'rxjs';
 import {SystemInfoService} from '../system-info.service';
+import {SubSink} from 'subsink';
+import {SystemInfo} from '../shared/SystemInfo';
 
 @Component({
   selector: 'app-version',
@@ -8,12 +10,20 @@ import {SystemInfoService} from '../system-info.service';
   styleUrls: ['./version.component.scss']
 })
 export class VersionComponent implements OnInit {
-  version?: Observable<string>;
+  version = new BehaviorSubject<string>('');
+  name = new BehaviorSubject<string>('');
+  build = new BehaviorSubject<string>('');
+
+  private subsink = new SubSink();
 
   constructor(private systemInfo: SystemInfoService) {
   }
 
   ngOnInit(): void {
-    this.version = this.systemInfo.getVersion().pipe(take(1), map((v: any) => v.version));
+    this.subsink.sink = this.systemInfo.getInfo().subscribe((v: SystemInfo) => {
+      this.name.next(v.name);
+      this.version.next(v.version.version);
+      this.build.next(v.version.build);
+    });
   }
 }

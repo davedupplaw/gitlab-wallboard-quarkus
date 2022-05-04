@@ -47,7 +47,7 @@ class GitLabService(
         do {
             logger.trace { "At page $page" }
             list = getProjectsWithPage(path, page++)
-                .filter { gitLabServiceConfiguration.projectBlacklist.map { x -> x.contains(it.id) }.orElse(true) }
+                .filter { gitLabServiceConfiguration.projectBlacklist.map { x -> !x.contains(it.id) }.orElse(true) }
                 .onEach { emit(it) }
         } while (list.isNotEmpty())
     }
@@ -67,8 +67,9 @@ class GitLabService(
             ObjectMapper().readTree(ins).map { node ->
                 val id = node.get("id").asLong()
                 val name = node.get("name").asText()
+                val url = node.get("web_url").asText()
 
-                Project(id, name)
+                Project(id, name, url)
             }
         }
     }

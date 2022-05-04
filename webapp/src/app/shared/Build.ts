@@ -7,7 +7,9 @@ export class Build {
     public buildUrl: string,
     public status: BuildStatus,
     public lastBuildTimestamp: string,
-    public user: string
+    public user: string,
+    public failReason?: string,
+    public failedJob?: string
   ) {
   }
 }

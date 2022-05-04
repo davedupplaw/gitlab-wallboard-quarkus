@@ -1,4 +1,13 @@
 package uk.dupplaw.gitlab.wallboard.domain
 
-class Version(val version: String) {
-}
+data class Version(
+    val version: String,
+    val buildNumber: String
+)
+
+data class SystemInfo(
+    val name: String,
+    val version: Version,
+)
+
+

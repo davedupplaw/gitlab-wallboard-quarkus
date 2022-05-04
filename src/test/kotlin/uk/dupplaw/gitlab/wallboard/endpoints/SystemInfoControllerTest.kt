@@ -6,7 +6,7 @@ import org.hamcrest.CoreMatchers.`is`
 import org.junit.jupiter.api.Test
 
 @QuarkusTest
-class VersionControllerTest {
+class SystemInfoControllerTest {
     @Test
     fun testVersionEndpoint() {
         given()

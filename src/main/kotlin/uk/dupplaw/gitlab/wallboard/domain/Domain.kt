@@ -4,7 +4,8 @@ interface AllowedOverWebsocket
 
 data class Project(
     val id: Long,
-    val name: String
+    val name: String,
+    val projectUrl: String,
 ) : AllowedOverWebsocket
 
 enum class BuildStatus {
@@ -21,5 +22,7 @@ data class Build(
     val buildUrl: String,
     val status: BuildStatus,
     val lastBuildTimestamp: String,
-    val user: String
+    val user: String,
+    val failReason: String? = null,
+    val failedJob: String? = null
 ) : AllowedOverWebsocket

@@ -1,3 +1,16 @@
+app-version {
+  display: block;
+  position: fixed;
+  width: 100vw;
+  height: 2.3em;
+  background: var(--background);
+}
+
+app-project-status-feed {
+  display: block;
+  padding-top: 2.3em;
+}
+
 app-notification-bar {
   position: absolute;
 

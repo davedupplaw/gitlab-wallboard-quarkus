@@ -28,4 +28,5 @@ data class BuildServiceConfiguration(
 data class GitLabCIBuildServiceConfiguration(
     @ConfigProperty(name = "build.service.gitlab-ci.host") val host: String,
     @ConfigProperty(name = "build.service.gitlab-ci.token") val token: String,
+    @ConfigProperty(name = "build.service.gitlab-ci.ref") val ref: String,
 )
