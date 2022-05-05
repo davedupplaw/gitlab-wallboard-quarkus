@@ -44,7 +44,9 @@ These are the GitLab-CI settings for getting build information:
 | build.service.gitlab-ci.token            | string       |         | (required) The private token used to connect to the GitLab API (read only)       |  
 | build.service.gitlab-ci.ref              | ref name     | master  | The branch name to retrieve builds from                                          |
 | build.service.gitlab-ci.min-refresh-time | milliseconds | 20000   | The lower-bound number of milliseconds to wait until retrieving new build status |
-| build.service.gitlab-ci.max-refresh-time | milliseconds | 30000   | The upper-bound number of milliseconds to wait until retrieving new build status | 
+| build.service.gitlab-ci.max-refresh-time | milliseconds | 30000   | The upper-bound number of milliseconds to wait until retrieving new build status |
+| build.service.gitlab-ci.overrides.refs.X | ref name     |         | An override for the default ref; replace X with an id of a project               |
+
 
 ## Development
 
