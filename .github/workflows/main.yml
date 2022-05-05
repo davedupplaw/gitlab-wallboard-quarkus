@@ -17,7 +17,7 @@ jobs:
              -Dui.deps \
              -Dquarkus.container-image.push=true \
              -Dquarkus.container-image.registry=registry.hub.docker.com \
-             -Dquarkus.container-image.username={{ secrets.DOCKER_HUB_USER }} \
-             -Dquarkus.container-image.password={{ secrets.DOCKER_HUB_PASSWORD }} \
+             -Dquarkus.container-image.username=${{ secrets.DOCKER_HUB_USER }} \
+             -Dquarkus.container-image.password=${{ secrets.DOCKER_HUB_PASSWORD }} \
              -Dquarkus.container-image.group=davedupplaw \
              -Dquarkus.container-image.name=build-wallboard-quarkus
