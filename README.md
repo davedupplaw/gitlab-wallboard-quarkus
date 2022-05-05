@@ -53,7 +53,7 @@ These are the GitLab-CI settings for getting build information:
 You can run your application in dev mode that enables live coding using:
 
 ```shell script
-./mvnw compile quarkus:dev -Dui.dev
+CI_PIPELINE_ID=local ./mvnw compile quarkus:dev -Dui.dev
 ```
 
 This runs the backend on port 8080 with live-reloading and ensures the UI is also built.
@@ -72,7 +72,7 @@ requests (`/api`) to port 8080 where the backend runs.
 The application can be packaged using:
 
 ```shell script
-mvn package quarkus:dev -Dui.deps -Dui.dev
+CI_PIPELINE_ID=local mvn package quarkus:dev -Dui.deps -Dui.dev
 ```
 
 It produces the `quarkus-run.jar` file in the `target/quarkus-app/` directory.
@@ -83,7 +83,7 @@ The application is now runnable using `java -jar target/quarkus-app/quarkus-run.
 If you want to build an _über-jar_, execute the following command:
 
 ```shell script
-./mvnw package -Dquarkus.package.type=uber-jar -Dui.deps -Dui.dev
+CI_PIPELINE_ID=local ./mvnw package -Dquarkus.package.type=uber-jar -Dui.deps -Dui.dev
 ```
 
 The application, packaged as an _über-jar_, is now runnable using `java -jar target/*-runner.jar`.
@@ -93,16 +93,19 @@ The application, packaged as an _über-jar_, is now runnable using `java -jar ta
 You can create a native executable using:
 
 ```shell script
-./mvnw package -Pnative -Dui.deps -Dui.dev
+CI_PIPELINE_ID=local ./mvnw package -Pnative -Dui.deps -Dui.dev
 ```
 
 Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
 
 ```shell script
-./mvnw package -Pnative -Dquarkus.native.container-build=true -Dui.deps -Dui.dev
+CI_PIPELINE_ID=local ./mvnw package -Pnative -Dquarkus.native.container-build=true -Dui.deps -Dui.dev
 ```
 
-You can then execute your native executable with: `./target/uk.dupplaw.gitlab.wallboard-1.0.0-SNAPSHOT-runner`
+You can then execute your native executable with: `./target/uk.dupplaw.gitlab.wallboard-1.0.0-SNAPSHOT-runner`.
+
+If this is running within your CI, make sure `CI_PIPELINE_ID` is set to the build number you wish to be
+associated with this build.
 
 If you want to learn more about building native executables, please consult https://quarkus.io/guides/maven-tooling.
 
@@ -111,8 +114,11 @@ If you want to learn more about building native executables, please consult http
 You can create a native docker image (running on GraalVM) using:
 
 ```shell
-./mvnw clean package -Pnative -Dquarkus.native.container-build=true -Dquarkus.container-image.build=true -Dui -Dui.deps
+CI_PIPELINE_ID=local ./mvnw clean package -Pnative -Dquarkus.native.container-build=true -Dquarkus.container-image.build=true -Dui -Dui.deps
 ```
+
+If this is running within your CI, make sure `CI_PIPELINE_ID` is set to the build number you wish to be
+associated with this build.
 
 ### Related Guides
 
