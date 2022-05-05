@@ -1,7 +1,10 @@
 package uk.dupplaw.gitlab.wallboard.domain
 
+import io.quarkus.runtime.annotations.RegisterForReflection
+
 interface AllowedOverWebsocket
 
+@RegisterForReflection
 data class Project(
     val id: Long,
     val name: String,
@@ -16,6 +19,7 @@ enum class BuildStatus {
     RUNNING,
 }
 
+@RegisterForReflection
 data class Build(
     val id: Long,
     val projectId: Long,

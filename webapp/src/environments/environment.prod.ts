@@ -1,3 +1,4 @@
 export const environment = {
-  production: true
+  production: true,
+  websocketPath: '/api/ws/project-feed',
 };

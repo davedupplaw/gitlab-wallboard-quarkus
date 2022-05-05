@@ -23,9 +23,18 @@ export class ProjectFeedService {
     return this.isConnected$;
   }
 
-  public connect(url: string = environment.websocketPath): Subject<ProjectFeedMessage> {
+  public connect(path: string = environment.websocketPath): Subject<ProjectFeedMessage> {
     if (!this.connection$) {
-      this.connectWebsocket(url);
+      const protocol = window.location.protocol;
+      const hostname = window.location.hostname;
+      const port = window.location.port;
+      if (protocol === 'https:') {
+        this.connectWebsocket(`wss://${hostname}:${port}${path}`);
+      } else if (protocol === 'http:') {
+        this.connectWebsocket(`ws://${hostname}:${port}${path}`);
+      } else {
+        console.warn(`Unknown location protocol ${protocol}. Don't know how to connect websocket.`);
+      }
     }
 
     return this.messageStream$;

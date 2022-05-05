@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  websocketPath: 'ws://localhost:8080/api/ws/project-feed',
+  websocketPath: '/api/ws/project-feed',
 };
 
 /*
