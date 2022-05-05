@@ -4,6 +4,9 @@ jobs:
   native_docker_build:
     runs-on: ubuntu-latest
     name: Build Native Docker Image
+    env:
+      DOCKER_HUB_USER: ${{ secrets.DOCKER_HUB_USER }}
+      DOCKER_HUB_PASS: ${{ secrets.DOCKER_HUB_PASSWORD }}
     steps:
       - name: Checkout the code
         uses: actions/checkout@master
@@ -17,7 +20,7 @@ jobs:
              -Dui.deps \
              -Dquarkus.container-image.push=true \
              -Dquarkus.container-image.registry=registry.hub.docker.com \
-             -Dquarkus.container-image.username=${{ secrets.DOCKER_HUB_USER }} \
-             -Dquarkus.container-image.password=${{ secrets.DOCKER_HUB_PASSWORD }} \
+             -Dquarkus.container-image.username=$DOCKER_HUB_USER \
+             -Dquarkus.container-image.password=$DOCKER_HUB_PASS \
              -Dquarkus.container-image.group=davedupplaw \
              -Dquarkus.container-image.name=build-wallboard-quarkus
