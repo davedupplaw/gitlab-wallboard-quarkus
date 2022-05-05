@@ -1,7 +1,7 @@
 
 export interface Version {
   version: string;
-  build: string;
+  buildNumber: string;
 }
 
 export interface SystemInfo {

@@ -23,7 +23,7 @@ export class VersionComponent implements OnInit {
     this.subsink.sink = this.systemInfo.getInfo().subscribe((v: SystemInfo) => {
       this.name.next(v.name);
       this.version.next(v.version.version);
-      this.build.next(v.version.build);
+      this.build.next(v.version.buildNumber);
     });
   }
 }
