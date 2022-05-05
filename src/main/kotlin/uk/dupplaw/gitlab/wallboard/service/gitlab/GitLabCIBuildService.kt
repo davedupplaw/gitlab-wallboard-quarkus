@@ -42,7 +42,10 @@ class GitLabCIBuildService(
     private fun getLatestBuild(projectId: Long): Long? {
         val projectUrl = "https://${gitLabCIBuildServiceConfiguration.host}$pipelinesUrl"
             .replace(":projectId", projectId.toString())
-            .replace(":ref", gitLabCIBuildServiceConfiguration.ref)
+            .replace(":ref",
+                gitLabCIBuildServiceConfiguration.overriddenRefs.refs()[projectId]
+                    ?: gitLabCIBuildServiceConfiguration.ref
+            )
 
         logger.trace { "Getting latest build at $projectUrl" }
         return URL(projectUrl).openConnection().apply {
@@ -59,7 +62,7 @@ class GitLabCIBuildService(
             .replace(":projectId", projectId.toString())
             .replace(":pipelineId", buildId.toString())
 
-        logger.trace { "Getting build info: $buildUrl" }
+        logger.info { "Getting build info: $buildUrl" }
         return URL(buildUrl).openConnection().apply {
             readTimeout = 800
             connectTimeout = 200

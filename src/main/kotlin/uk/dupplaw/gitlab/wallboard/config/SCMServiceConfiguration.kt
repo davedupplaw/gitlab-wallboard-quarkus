@@ -1,5 +1,6 @@
 package uk.dupplaw.gitlab.wallboard.config
 
+import io.smallrye.config.ConfigMapping
 import org.eclipse.microprofile.config.inject.ConfigProperty
 import java.util.*
 import javax.enterprise.context.ApplicationScoped
@@ -15,7 +16,7 @@ data class GitLabServiceConfiguration(
     @ConfigProperty(name = "scm.service.gitlab.host") val host: String,
     @ConfigProperty(name = "scm.service.gitlab.token") val token: String,
     @ConfigProperty(name = "scm.service.gitlab.whitelists.groups") val groupsWhitelist: Optional<List<Long>>,
-    @ConfigProperty(name = "scm.service.gitlab.blacklist.projects") val projectBlacklist: Optional<List<Long>>
+    @ConfigProperty(name = "scm.service.gitlab.blacklist.projects") val projectBlacklist: Optional<List<Long>>,
 )
 
 @ApplicationScoped
@@ -31,4 +32,10 @@ data class GitLabCIBuildServiceConfiguration(
     @ConfigProperty(name = "build.service.gitlab-ci.ref") val ref: String,
     @ConfigProperty(name = "build.service.gitlab-ci.min-refresh-time") val minRefreshTime: Long,
     @ConfigProperty(name = "build.service.gitlab-ci.max-refresh-time") val maxRefreshTime: Long,
+    val overriddenRefs: GitLabCIBuildServiceOverriddenRefs
 )
+
+@ConfigMapping(prefix = "build.service.gitlab-ci.overrides", namingStrategy = ConfigMapping.NamingStrategy.VERBATIM)
+interface GitLabCIBuildServiceOverriddenRefs {
+    fun refs(): Map<Long, String>
+}
