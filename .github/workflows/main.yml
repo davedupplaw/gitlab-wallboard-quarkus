@@ -25,4 +25,4 @@ jobs:
              -Dquarkus.container-image.password=$DOCKER_HUB_PASS \
              -Dquarkus.container-image.group=davedupplaw \
              -Dquarkus.container-image.name=build-wallboard-quarkus \
-             -Dquarkus.container-image.tags=latest
+             -Dquarkus.container-image.additional-tags=latest
