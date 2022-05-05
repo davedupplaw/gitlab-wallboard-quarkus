@@ -76,7 +76,7 @@ export class ProjectStatusFeedComponent implements OnInit {
             d3.ascending(
               preferredBuildOrder.indexOf(a.lastBuild?.status || 'UNKNOWN'),
               preferredBuildOrder.indexOf(b.lastBuild?.status || 'UNKNOWN')
-            ) || d3.ascending(a.name, b.name)
+            ) || d3.ascending(a.name.toLocaleLowerCase(), b.name.toLocaleLowerCase())
           ),
           d => (d as any).id
         )
