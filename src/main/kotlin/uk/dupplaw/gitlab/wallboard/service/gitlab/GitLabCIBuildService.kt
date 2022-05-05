@@ -34,7 +34,7 @@ class GitLabCIBuildService(
                 gitLabCIBuildServiceConfiguration.minRefreshTime,
                 gitLabCIBuildServiceConfiguration.maxRefreshTime
             )
-            logger.info { "Waiting $delayTimeMillis ms before updating builds ${project.name}" }
+            logger.trace { "Waiting $delayTimeMillis ms before updating builds ${project.name}" }
             delay(delayTimeMillis)
         }
     }
