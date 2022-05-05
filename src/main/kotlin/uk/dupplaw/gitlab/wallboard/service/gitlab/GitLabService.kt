@@ -26,7 +26,8 @@ class GitLabService(
 
     override fun retrieveProjects() = flow {
         when {
-            gitLabServiceConfiguration.groupsWhitelist.isNotEmpty() -> {
+            gitLabServiceConfiguration.groupsWhitelist.isPresent &&
+            gitLabServiceConfiguration.groupsWhitelist.get().isNotEmpty() -> {
                 logger.info { "A group whitelist exists, so only projects from these groups: ${gitLabServiceConfiguration.groupsWhitelist}" }
                 getProjectsInGroups()
             }
@@ -35,7 +36,7 @@ class GitLabService(
     }
 
     private suspend fun FlowCollector<Project>.getProjectsInGroups() {
-        gitLabServiceConfiguration.groupsWhitelist.forEach { groupId ->
+        gitLabServiceConfiguration.groupsWhitelist.get().forEach { groupId ->
             val path = groupProjectsUrl.replace(":groupId", groupId.toString())
             loopOverPagesInResponse(path)
         }

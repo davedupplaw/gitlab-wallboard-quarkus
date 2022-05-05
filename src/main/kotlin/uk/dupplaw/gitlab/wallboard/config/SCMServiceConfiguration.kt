@@ -14,7 +14,7 @@ data class SCMServiceConfiguration(
 data class GitLabServiceConfiguration(
     @ConfigProperty(name = "scm.service.gitlab.host") val host: String,
     @ConfigProperty(name = "scm.service.gitlab.token") val token: String,
-    @ConfigProperty(name = "scm.service.gitlab.whitelists.groups") val groupsWhitelist: List<Long>,
+    @ConfigProperty(name = "scm.service.gitlab.whitelists.groups") val groupsWhitelist: Optional<List<Long>>,
     @ConfigProperty(name = "scm.service.gitlab.blacklist.projects") val projectBlacklist: Optional<List<Long>>
 )
 
