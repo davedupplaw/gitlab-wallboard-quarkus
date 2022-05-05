@@ -62,7 +62,7 @@ class GitLabCIBuildService(
             .replace(":projectId", projectId.toString())
             .replace(":pipelineId", buildId.toString())
 
-        logger.info { "Getting build info: $buildUrl" }
+        logger.trace { "Getting build info: $buildUrl" }
         return URL(buildUrl).openConnection().apply {
             readTimeout = 800
             connectTimeout = 200
