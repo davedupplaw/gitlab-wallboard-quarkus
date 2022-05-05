@@ -19,6 +19,7 @@ class ProjectCache {
 
     operator fun get(id: Long) = cache[id]
 
+    fun has(id: Long) = cache.containsKey(id)
     fun projects() = cache.values
     fun builds() = buildCache.values
 }

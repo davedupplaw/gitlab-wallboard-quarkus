@@ -25,7 +25,10 @@ class AggregatedBuildService(
                     emit(it)
                 }
         } catch (e: Exception) {
-            logger.error { "Caught exception getting build information" }
+            logger.error {
+                "Caught exception getting build information. This stops the build information being " +
+                        "retrieved for this project until the next time the project is read from the server."
+            }
             logger.error { e }
         }
     }

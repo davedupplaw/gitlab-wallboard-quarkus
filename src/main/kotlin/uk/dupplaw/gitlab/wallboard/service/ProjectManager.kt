@@ -3,12 +3,10 @@ package uk.dupplaw.gitlab.wallboard.service
 import io.quarkus.runtime.StartupEvent
 import io.quarkus.vertx.ConsumeEvent
 import io.vertx.mutiny.core.eventbus.EventBus
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import mu.KotlinLogging
 import javax.enterprise.context.ApplicationScoped
 import javax.enterprise.event.Observes
@@ -21,6 +19,8 @@ class ProjectManager(
     private val projectCache: ProjectCache,
 ) {
     private val logger = KotlinLogging.logger {}
+
+    private val buildJobs = mutableMapOf<Long, Job>()
 
     @ConsumeEvent("new-session")
     @Suppress("unused")
@@ -39,20 +39,31 @@ class ProjectManager(
     @OptIn(DelicateCoroutinesApi::class)
     fun updateProjects() = runBlocking {
         try {
-            val projects = scmService.retrieveProjects()
-                .onEach { projectCache[it.id] = it }
-                .onEach { eventBus.publish("project", it) }
-                .toList()
+            GlobalScope.launch {
+                while(true) {
+                    val projects = scmService.retrieveProjects()
+                        .map { it to projectCache.has(it.id) }
+                        .onEach { (it, _) -> projectCache[it.id] = it }
+                        .onEach { (it, _) -> eventBus.publish("project", it) }
+                        .onEach { (it, exists) ->
+                            if (!exists || buildJobs[it.id]?.isCancelled == true) {
+                                val job = GlobalScope.launch {
+                                    buildService.retrieveBuildInformation(it).collect { info ->
+                                        eventBus.publish("build", info)
+                                        projectCache[it.id] = info
+                                    }
+                                }
+                                buildJobs[it.id] = job
+                            }
+                        }
+                        .map { (it, _) -> it }
+                        .toList()
 
-            logger.info { "Projects: $projects" }
+                    logger.info { "Projects: $projects" }
 
-            // Create a flow for each project's builds
-            projects.forEach {
-                GlobalScope.launch {
-                    buildService.retrieveBuildInformation(it).collect { info ->
-                        eventBus.publish("build", info)
-                        projectCache[it.id] = info
-                    }
+                    val timeToWaitUntilProjectsUpdate = 60_000L
+                    logger.info { "Waiting $timeToWaitUntilProjectsUpdate ms until next update of projects" }
+                    delay(timeToWaitUntilProjectsUpdate)
                 }
             }
         } catch (e: Throwable) {
