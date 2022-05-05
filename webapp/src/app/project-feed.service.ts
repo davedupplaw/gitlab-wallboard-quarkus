@@ -27,7 +27,7 @@ export class ProjectFeedService {
     if (!this.connection$) {
       const protocol = window.location.protocol;
       const hostname = window.location.hostname;
-      const port = window.location.port;
+      const port = environment.websocketPort || window.location.port;
       if (protocol === 'https:') {
         this.connectWebsocket(`wss://${hostname}:${port}${path}`);
       } else if (protocol === 'http:') {
