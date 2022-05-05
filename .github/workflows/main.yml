@@ -1,0 +1,23 @@
+on: [push]
+
+jobs:
+  native_docker_build:
+    runs-on: ubuntu-latest
+    name: Build Native Docker Image
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@master
+      - name: Build everything
+        run: |
+          ./mvnw clean package \
+             -Pnative \
+             -Dquarkus.native.container-build=true \
+             -Dquarkus.container-image.build=true \
+             -Dui \
+             -Dui.deps \
+             -Dquarkus.container-image.push=true \
+             -Dquarkus.container-image.registry=registry.hub.docker.com \
+             -Dquarkus.container-image.username={{ secrets.DOCKER_HUB_USER }} \
+             -Dquarkus.container-image.password={{ secrets.DOCKER_HUB_PASSWORD }} \
+             -Dquarkus.container-image.group=davedupplaw \
+             -Dquarkus.container-image.name=build-wallboard-quarkus

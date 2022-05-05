@@ -4,7 +4,8 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.acme</groupId>
   <artifactId>uk.dupplaw.gitlab.wallboard</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.0.0</version>
+
   <properties>
     <compiler-plugin.version>3.8.1</compiler-plugin.version>
     <failsafe.useModulePath>false</failsafe.useModulePath>
@@ -19,6 +20,7 @@
     <version.frontend-maven-plugin>1.7.5</version.frontend-maven-plugin>
     <version.resources-plugin>3.1.0</version.resources-plugin>
   </properties>
+
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -99,7 +101,9 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
   <build>
+    <finalName>build-wallboard-quarkus</finalName>
     <sourceDirectory>src/main/kotlin</sourceDirectory>
     <testSourceDirectory>src/test/kotlin</testSourceDirectory>
     <plugins>
