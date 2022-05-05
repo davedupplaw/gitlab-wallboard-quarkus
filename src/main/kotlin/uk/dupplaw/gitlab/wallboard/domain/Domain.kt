@@ -28,5 +28,5 @@ data class Build(
     val lastBuildTimestamp: String,
     val user: String,
     val failReason: String? = null,
-    val failedJob: String? = null
+    val currentStatusReason: String? = null
 ) : AllowedOverWebsocket

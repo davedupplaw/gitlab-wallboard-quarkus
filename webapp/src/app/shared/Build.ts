@@ -9,7 +9,7 @@ export class Build {
     public lastBuildTimestamp: string,
     public user: string,
     public failReason?: string,
-    public failedJob?: string
+    public currentStatusReason?: string
   ) {
   }
 }

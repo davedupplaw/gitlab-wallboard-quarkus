@@ -23,6 +23,7 @@ class GitLabCIBuildService(
     private val pipelinesUrl =
         "$baseUrl/projects/:projectId/pipelines?simple=true&per_page=1&order_by=updated_at&sort=desc&ref=:ref"
     private val pipelineUrl = "$baseUrl/projects/:projectId/pipelines/:pipelineId?simple=true"
+    private val jobUrl = "$baseUrl/projects/:projectId/pipelines/:pipelineId/jobs?per_page=1&scope=:scope"
 
     override fun retrieveBuildInformation(project: Project) = flow {
         while (true) {
@@ -42,7 +43,8 @@ class GitLabCIBuildService(
     private fun getLatestBuild(projectId: Long): Long? {
         val projectUrl = "https://${gitLabCIBuildServiceConfiguration.host}$pipelinesUrl"
             .replace(":projectId", projectId.toString())
-            .replace(":ref",
+            .replace(
+                ":ref",
                 gitLabCIBuildServiceConfiguration.overriddenRefs.refs()[projectId]
                     ?: gitLabCIBuildServiceConfiguration.ref
             )
@@ -81,6 +83,10 @@ class GitLabCIBuildService(
                 val lastBuild = node.get("updated_at").asText()
                 val webUrl = node.get("web_url").asText()
                 val user = node.get("user").get("name").asText()
+                val scope = when (status) {
+                    BuildStatus.FAIL, BuildStatus.WARNING, BuildStatus.RUNNING -> actualStatus
+                    else -> null
+                }
 
                 Build(
                     id = id,
@@ -89,9 +95,33 @@ class GitLabCIBuildService(
                     status = status,
                     lastBuildTimestamp = lastBuild,
                     user = user,
-                    failReason = actualStatus
+                    failReason = actualStatus,
+                    currentStatusReason = scope?.let { getJobInfo(projectId, id, it) } ?: ""
                 )
             }
+        }
+    }
+
+    fun getJobInfo(projectId: Long, pipelineId: Long, scope: String): String {
+        try {
+            val jobUrl = "https://${gitLabCIBuildServiceConfiguration.host}$jobUrl"
+                .replace(":projectId", projectId.toString())
+                .replace(":pipelineId", pipelineId.toString())
+                .replace(":scope", scope)
+
+            logger.info { "Getting job info: $jobUrl" }
+
+            return URL(jobUrl).openConnection().apply {
+                readTimeout = 800
+                connectTimeout = 200
+                setRequestProperty("Private-Token", gitLabCIBuildServiceConfiguration.token)
+            }.getInputStream().use { ins ->
+                ObjectMapper().readTree(ins).get(0).get("name").asText()
+            }
+        } catch (e: Exception) {
+            logger.warn { "Error getting job information" }
+            logger.warn { e }
+            return ""
         }
     }
 }

@@ -91,6 +91,7 @@ export class ProjectStatusFeedComponent implements OnInit {
            .call(x => x.select('.calendar').call(ProjectStatusFeedComponent.updateBuildTime))
            .call(x => x.select('.user').call(ProjectStatusFeedComponent.updateBuildUser))
            .call(x => x.select('.status').call(ProjectStatusFeedComponent.updateStatus))
+           .call(x => x.select('.status-reason').call(ProjectStatusFeedComponent.updateReason))
            .call(ProjectStatusFeedComponent.updateBuildCardClass)
         })
       ;
@@ -109,6 +110,9 @@ export class ProjectStatusFeedComponent implements OnInit {
 
     // <div class="project-id">{{id}}</div>
     div.append('div').attr('class', 'project-id').html(d => `id: ${d.id}`);
+
+    // <div class="status">{{status}}</div>
+    div.append('div').attr('class', 'status-reason').call(ProjectStatusFeedComponent.updateReason)
 
     // <div class="extra">...</div>
     const extra = div.append('div').attr('class', 'extra');
@@ -157,6 +161,10 @@ export class ProjectStatusFeedComponent implements OnInit {
 
   private static updateStatus(x: d3.Selection<any, Project, any, any>): d3.Selection<any, Project, any, any> {
     return x.html(d => `${d.lastBuild?.failReason || 'unknown'}`);
+  }
+
+  private static updateReason(x: d3.Selection<any, Project, any, any>): d3.Selection<any, Project, any, any> {
+    return x.html(d => `${d.lastBuild?.currentStatusReason || ''}`);
   }
 
   private static updateBuildCardClass(x: d3.Selection<any, Project, any, any>): d3.Selection<any, Project, any, any> {
