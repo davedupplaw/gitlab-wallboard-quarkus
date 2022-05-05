@@ -1,7 +1,10 @@
-<app-version></app-version>
+<app-version>
+  <div class="lastUpdated">Last Updated: {{lastUpdated}}</div>
+</app-version>
 
 <app-notification-bar *ngIf="noConnection">
-  <app-throbber></app-throbber> No connection to server. Trying to reconnect...
+  <app-throbber></app-throbber>
+  No connection to server. Trying to reconnect...
 </app-notification-bar>
 
 <app-project-status-feed></app-project-status-feed>
