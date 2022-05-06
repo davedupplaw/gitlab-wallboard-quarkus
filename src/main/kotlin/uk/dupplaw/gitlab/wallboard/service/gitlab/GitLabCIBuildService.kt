@@ -21,7 +21,7 @@ class GitLabCIBuildService(
 
     private val baseUrl = "/api/v4"
     private val pipelinesUrl =
-        "$baseUrl/projects/:projectId/pipelines?simple=true&per_page=1&order_by=updated_at&sort=desc&ref=:ref"
+        "$baseUrl/projects/:projectId/pipelines?simple=true&per_page=1&order_by=id&sort=desc&ref=:ref"
     private val pipelineUrl = "$baseUrl/projects/:projectId/pipelines/:pipelineId?simple=true"
     private val jobUrl = "$baseUrl/projects/:projectId/pipelines/:pipelineId/jobs?per_page=1&scope=:scope"
 
