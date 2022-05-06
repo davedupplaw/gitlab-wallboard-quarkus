@@ -7,7 +7,7 @@ jobs:
     env:
       DOCKER_HUB_USER: ${{ secrets.DOCKER_HUB_USER }}
       DOCKER_HUB_PASS: ${{ secrets.DOCKER_HUB_PASSWORD }}
-      CI_PIPELINE_ID: $GITHUB_RUN_NUMBER
+      CI_PIPELINE_ID: ${GITHUB_RUN_NUMBER}
     steps:
       - name: Checkout the code
         uses: actions/checkout@master
