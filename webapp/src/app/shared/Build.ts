@@ -8,8 +8,8 @@ export class Build {
     public status: BuildStatus,
     public lastBuildTimestamp: string,
     public user: string,
-    public failReason?: string,
-    public currentStatusReason?: string
+    public currentStatusReasons: string[],
+    public textStatus?: string,
   ) {
   }
 }

@@ -23,7 +23,7 @@ class GitLabCIBuildService(
     private val pipelinesUrl =
         "$baseUrl/projects/:projectId/pipelines?simple=true&per_page=1&order_by=id&sort=desc&ref=:ref"
     private val pipelineUrl = "$baseUrl/projects/:projectId/pipelines/:pipelineId?simple=true"
-    private val jobUrl = "$baseUrl/projects/:projectId/pipelines/:pipelineId/jobs?per_page=1&scope=:scope"
+    private val jobUrl = "$baseUrl/projects/:projectId/pipelines/:pipelineId/jobs?per_page=3&scope=:scope"
 
     override fun retrieveBuildInformation(project: Project) = flow {
         while (true) {
@@ -95,14 +95,14 @@ class GitLabCIBuildService(
                     status = status,
                     lastBuildTimestamp = lastBuild,
                     user = user,
-                    failReason = actualStatus,
-                    currentStatusReason = scope?.let { getJobInfo(projectId, id, it) } ?: ""
+                    textStatus = actualStatus,
+                    currentStatusReasons = scope?.let { getJobInfo(projectId, id, it) } ?: listOf()
                 )
             }
         }
     }
 
-    fun getJobInfo(projectId: Long, pipelineId: Long, scope: String): String {
+    fun getJobInfo(projectId: Long, pipelineId: Long, scope: String): List<String> {
         try {
             val jobUrl = "https://${gitLabCIBuildServiceConfiguration.host}$jobUrl"
                 .replace(":projectId", projectId.toString())
@@ -116,12 +116,12 @@ class GitLabCIBuildService(
                 connectTimeout = 200
                 setRequestProperty("Private-Token", gitLabCIBuildServiceConfiguration.token)
             }.getInputStream().use { ins ->
-                ObjectMapper().readTree(ins).get(0).get("name").asText()
+                ObjectMapper().readTree(ins).map { it.get("name").asText() }
             }
         } catch (e: Exception) {
             logger.warn { "Error getting job information" }
             logger.warn { e }
-            return ""
+            return listOf()
         }
     }
 }

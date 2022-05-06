@@ -45,6 +45,17 @@ div.wrapper {
       background: #2d9fd8;
     }
 
+    .status-reason {
+      list-style: none;
+
+      li {
+        margin: 0;
+        padding: 0;
+        list-style-type: none;
+        line-height: 1.2em;
+      }
+    }
+
     .extra {
       border-top: 1px solid rgba(0, 0, 0, .05) !important;
       position: static;
