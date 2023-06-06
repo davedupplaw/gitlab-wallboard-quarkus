@@ -4,19 +4,20 @@ import io.quarkus.runtime.StartupEvent
 import io.quarkus.vertx.ConsumeEvent
 import io.vertx.mutiny.core.eventbus.EventBus
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.flow.*
 import mu.KotlinLogging
+import uk.dupplaw.gitlab.wallboard.domain.QualityService
 import javax.enterprise.context.ApplicationScoped
 import javax.enterprise.event.Observes
+import kotlin.random.Random
 
 @ApplicationScoped
 class ProjectManager(
-    private val eventBus: EventBus,
-    private val scmService: AggregatedSCMService,
-    private val buildService: AggregatedBuildService,
-    private val projectCache: ProjectCache,
+        private val eventBus: EventBus,
+        private val scmService: AggregatedSCMService,
+        private val buildService: AggregatedBuildService,
+        private val qualityService: QualityService,
+        private val projectCache: ProjectCache,
 ) {
     private val logger = KotlinLogging.logger {}
 
@@ -36,40 +37,40 @@ class ProjectManager(
         updateProjects()
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     fun updateProjects() = runBlocking {
-        try {
-            GlobalScope.launch {
-                while(true) {
-                    val projects = scmService.retrieveProjects()
-                        .map { it to projectCache.has(it.id) }
-                        .onEach { (it, _) -> projectCache[it.id] = it }
-                        .onEach { (it, _) -> eventBus.publish("project", it) }
-                        .onEach { (it, exists) ->
-                            if (!exists || buildJobs[it.id]?.isCancelled == true) {
-                                val job = GlobalScope.launch {
-                                    buildService.retrieveBuildInformation(it).collect { info ->
-                                        eventBus.publish("build", info)
-                                        projectCache[it.id] = info
-                                    }
-                                }
-                                buildJobs[it.id] = job
-                            }
+        GlobalScope.launch {
+            delay(10_000L)
+            qualityService.allProjects()
+                    .map { projectCache[it.projectId]?.apply { this.quality = it } }
+                    .filterNotNull()
+                    .onEach { logger.info { "New quality stats for project ${it.name}: ${it.quality}" } }
+                    .collect { eventBus.publish("project", it) }
+        }
+
+        GlobalScope.launch {
+            scmService.retrieveProjects()
+                    .onEach { projectCache[it.id] = it }
+                    .onEach { eventBus.publish("project", it) }
+                    .collect { logger.info { "Retrieved project info $it" } }
+        }
+
+        GlobalScope.launch {
+            delay(5000)
+            var amount = 100.0
+            while (true) {
+                projectCache.projects().forEachIndexed { i, project ->
+                    launch {
+                        delay(i * Random.nextDouble(amount).toLong())
+                        buildService.retrieveBuildInformation(project)?.let { build ->
+                            logger.info { "Retrieved project build info $build" }
+                            projectCache[project.id] = build
+                            eventBus.publish("build", build)
                         }
-                        .map { (it, _) -> it }
-                        .toList()
-
-                    logger.info { "Projects: $projects" }
-
-                    val timeToWaitUntilProjectsUpdate = 60_000L
-                    logger.info { "Waiting $timeToWaitUntilProjectsUpdate ms until next update of projects" }
-                    delay(timeToWaitUntilProjectsUpdate)
+                    }
                 }
+                amount = 10_000.0
+                delay(projectCache.projects().size * 250L)
             }
-        } catch (e: Throwable) {
-            logger.warn { "An exception occurred that was caught during the retrieval of build information" }
-            logger.info { "Catching the exception allows the retrieval loop to continue." }
-            logger.warn { e }
         }
     }
 }

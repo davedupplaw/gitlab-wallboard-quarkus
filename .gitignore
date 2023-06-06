@@ -39,3 +39,4 @@ nb-configuration.xml
 .env
 /webapp/node/
 /.mvn/wrapper/maven-wrapper.jar
+/src/main/resources/application-dev.properties

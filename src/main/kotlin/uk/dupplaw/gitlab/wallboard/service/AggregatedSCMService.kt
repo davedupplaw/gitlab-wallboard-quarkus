@@ -1,6 +1,6 @@
 package uk.dupplaw.gitlab.wallboard.service
 
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
 import mu.KotlinLogging
 import uk.dupplaw.gitlab.wallboard.config.SCMServiceConfiguration
@@ -10,8 +10,8 @@ import javax.enterprise.context.ApplicationScoped
 
 @ApplicationScoped
 class AggregatedSCMService(
-    private val scmServiceConfiguration: SCMServiceConfiguration,
-    private val gitLabService: GitLabService
+        private val scmServiceConfiguration: SCMServiceConfiguration,
+        private val gitLabService: GitLabService
 ) : SCMService {
     private val logger = KotlinLogging.logger {}
 
@@ -20,20 +20,25 @@ class AggregatedSCMService(
     }
 
     override fun retrieveProjects() = flow {
-        logger.info { "Getting projects..." }
+        while(true) {
+            logger.info { "Getting projects..." }
 
-        scmServices().forEach { service ->
-            service.retrieveProjects().collect {
-                emit(it)
+            scmServices().forEach { service ->
+                service.retrieveProjects().collect {
+                    emit(it)
+                }
             }
+
+            val timeToWaitUntilProjectsUpdate = 60_000L
+            delay(timeToWaitUntilProjectsUpdate)
         }
     }
 
     fun scmServices(): List<SCMService> = scmServiceConfiguration.names.map { makeService(it) }
 
     private fun makeService(scmServiceName: String) =
-        when (scmServiceName) {
-            "gitlab" -> gitLabService
-            else -> throw IllegalArgumentException("SCM service $scmServiceName is not valid")
-        }
+            when (scmServiceName) {
+                "gitlab" -> gitLabService
+                else -> throw IllegalArgumentException("SCM service $scmServiceName is not valid")
+            }
 }

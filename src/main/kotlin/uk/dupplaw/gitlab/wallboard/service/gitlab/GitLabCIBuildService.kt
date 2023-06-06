@@ -1,8 +1,6 @@
 package uk.dupplaw.gitlab.wallboard.service.gitlab
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.flow
 import mu.KotlinLogging
 import uk.dupplaw.gitlab.wallboard.config.GitLabCIBuildServiceConfiguration
 import uk.dupplaw.gitlab.wallboard.domain.Build
@@ -11,43 +9,32 @@ import uk.dupplaw.gitlab.wallboard.domain.BuildStatus
 import uk.dupplaw.gitlab.wallboard.domain.Project
 import java.net.URL
 import javax.enterprise.context.ApplicationScoped
-import kotlin.random.Random
 
 @ApplicationScoped
 class GitLabCIBuildService(
-    val gitLabCIBuildServiceConfiguration: GitLabCIBuildServiceConfiguration
+        val gitLabCIBuildServiceConfiguration: GitLabCIBuildServiceConfiguration
 ) : BuildService {
     private val logger = KotlinLogging.logger {}
 
     private val baseUrl = "/api/v4"
     private val pipelinesUrl =
-        "$baseUrl/projects/:projectId/pipelines?simple=true&per_page=1&order_by=id&sort=desc&ref=:ref"
+            "$baseUrl/projects/:projectId/pipelines?simple=true&per_page=1&order_by=id&sort=desc&ref=:ref"
     private val pipelineUrl = "$baseUrl/projects/:projectId/pipelines/:pipelineId?simple=true"
     private val jobUrl = "$baseUrl/projects/:projectId/pipelines/:pipelineId/jobs?per_page=3&scope=:scope"
 
-    override fun retrieveBuildInformation(project: Project) = flow {
-        while (true) {
+    override fun retrieveBuildInformation(project: Project) =
             getLatestBuild(project.id)?.let {
-                emit(getBuildInfo(project.id, it))
+                getBuildInfo(project.id, it)
             }
-
-            val delayTimeMillis = Random.nextLong(
-                gitLabCIBuildServiceConfiguration.minRefreshTime,
-                gitLabCIBuildServiceConfiguration.maxRefreshTime
-            )
-            logger.trace { "Waiting $delayTimeMillis ms before updating builds ${project.name}" }
-            delay(delayTimeMillis)
-        }
-    }
 
     private fun getLatestBuild(projectId: Long): Long? {
         val projectUrl = "https://${gitLabCIBuildServiceConfiguration.host}$pipelinesUrl"
-            .replace(":projectId", projectId.toString())
-            .replace(
-                ":ref",
-                gitLabCIBuildServiceConfiguration.overriddenRefs.refs()[projectId]
-                    ?: gitLabCIBuildServiceConfiguration.ref
-            )
+                .replace(":projectId", projectId.toString())
+                .replace(
+                        ":ref",
+                        gitLabCIBuildServiceConfiguration.overriddenRefs.refs()[projectId]
+                                ?: gitLabCIBuildServiceConfiguration.ref
+                )
 
         logger.trace { "Getting latest build at $projectUrl" }
         return URL(projectUrl).openConnection().apply {
@@ -61,8 +48,8 @@ class GitLabCIBuildService(
 
     private fun getBuildInfo(projectId: Long, buildId: Long): Build {
         val buildUrl = "https://${gitLabCIBuildServiceConfiguration.host}$pipelineUrl"
-            .replace(":projectId", projectId.toString())
-            .replace(":pipelineId", buildId.toString())
+                .replace(":projectId", projectId.toString())
+                .replace(":pipelineId", buildId.toString())
 
         logger.trace { "Getting build info: $buildUrl" }
         return URL(buildUrl).openConnection().apply {
@@ -89,14 +76,14 @@ class GitLabCIBuildService(
                 }
 
                 Build(
-                    id = id,
-                    projectId = projectId,
-                    buildUrl = webUrl,
-                    status = status,
-                    lastBuildTimestamp = lastBuild,
-                    user = user,
-                    textStatus = actualStatus,
-                    currentStatusReasons = scope?.let { getJobInfo(projectId, id, it) } ?: listOf()
+                        id = id,
+                        projectId = projectId,
+                        buildUrl = webUrl,
+                        status = status,
+                        lastBuildTimestamp = lastBuild,
+                        user = user,
+                        textStatus = actualStatus,
+                        currentStatusReasons = scope?.let { getJobInfo(projectId, id, it) } ?: listOf()
                 )
             }
         }
@@ -105,9 +92,9 @@ class GitLabCIBuildService(
     fun getJobInfo(projectId: Long, pipelineId: Long, scope: String): List<String> {
         try {
             val jobUrl = "https://${gitLabCIBuildServiceConfiguration.host}$jobUrl"
-                .replace(":projectId", projectId.toString())
-                .replace(":pipelineId", pipelineId.toString())
-                .replace(":scope", scope)
+                    .replace(":projectId", projectId.toString())
+                    .replace(":pipelineId", pipelineId.toString())
+                    .replace(":scope", scope)
 
             logger.info { "Getting job info: $jobUrl" }
 

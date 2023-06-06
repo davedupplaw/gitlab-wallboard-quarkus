@@ -36,6 +36,7 @@ data class GitLabCIBuildServiceConfiguration(
 )
 
 @ConfigMapping(prefix = "build.service.gitlab-ci.overrides", namingStrategy = ConfigMapping.NamingStrategy.VERBATIM)
-interface GitLabCIBuildServiceOverriddenRefs {
+fun interface GitLabCIBuildServiceOverriddenRefs {
     fun refs(): Map<Long, String>
 }
+
