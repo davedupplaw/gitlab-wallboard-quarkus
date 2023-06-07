@@ -8,7 +8,7 @@ import uk.dupplaw.gitlab.wallboard.config.GitLabServiceConfiguration
 import uk.dupplaw.gitlab.wallboard.domain.Project
 import uk.dupplaw.gitlab.wallboard.domain.SCMService
 import java.net.URL
-import javax.enterprise.context.ApplicationScoped
+import jakarta.enterprise.context.ApplicationScoped
 
 @ApplicationScoped
 class GitLabService(
@@ -66,9 +66,9 @@ class GitLabService(
             setRequestProperty("Private-Token", gitLabServiceConfiguration.token)
         }.getInputStream().use { ins ->
             ObjectMapper().readTree(ins).map { node ->
-                val id = node.get("id").asLong()
-                val name = node.get("name").asText()
-                val url = node.get("web_url").asText()
+                val id = node["id"].asLong()
+                val name = node["name"].asText()
+                val url = node["web_url"].asText()
 
                 Project(id, name, url)
             }

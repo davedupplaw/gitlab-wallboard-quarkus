@@ -1,16 +1,15 @@
 package uk.dupplaw.gitlab.wallboard.service.sonarqube
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import jakarta.enterprise.context.ApplicationScoped
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.runBlocking
 import uk.dupplaw.gitlab.wallboard.config.SonarqubeQualityServiceConfiguration
-import uk.dupplaw.gitlab.wallboard.domain.Quality
 import uk.dupplaw.gitlab.wallboard.domain.QualityService
 import uk.dupplaw.gitlab.wallboard.domain.SonarQuality
 import java.net.URL
 import java.util.*
-import javax.enterprise.context.ApplicationScoped
 
 @ApplicationScoped
 class SonarqubeQualityService(
@@ -19,7 +18,7 @@ class SonarqubeQualityService(
     private val metrics = listOf("security_review_rating", "reliability_rating", "coverage", "duplicated_lines_density")
 
     override fun allProjects() = flow {
-        while( true) {
+        while (true) {
             config.projects.asSequence().forEach { componentName ->
                 getQualityMeasures(componentName.trim('\"'))?.let { emit(it) }
             }

@@ -4,9 +4,9 @@ import io.quarkus.vertx.ConsumeEvent
 import io.vertx.mutiny.core.eventbus.EventBus
 import mu.KotlinLogging
 import uk.dupplaw.gitlab.wallboard.serialization.JsonEncoder
-import javax.enterprise.context.ApplicationScoped
-import javax.websocket.*
-import javax.websocket.server.ServerEndpoint
+import jakarta.enterprise.context.ApplicationScoped
+import jakarta.websocket.*
+import jakarta.websocket.server.ServerEndpoint
 
 @ServerEndpoint(value = "/api/ws/project-feed", encoders = [JsonEncoder::class])
 @ApplicationScoped

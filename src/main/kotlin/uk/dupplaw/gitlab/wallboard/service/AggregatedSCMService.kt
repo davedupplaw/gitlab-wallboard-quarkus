@@ -6,7 +6,7 @@ import mu.KotlinLogging
 import uk.dupplaw.gitlab.wallboard.config.SCMServiceConfiguration
 import uk.dupplaw.gitlab.wallboard.domain.SCMService
 import uk.dupplaw.gitlab.wallboard.service.gitlab.GitLabService
-import javax.enterprise.context.ApplicationScoped
+import jakarta.enterprise.context.ApplicationScoped
 
 @ApplicationScoped
 class AggregatedSCMService(

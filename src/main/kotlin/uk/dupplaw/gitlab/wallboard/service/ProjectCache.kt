@@ -4,7 +4,7 @@ import uk.dupplaw.gitlab.wallboard.domain.Build
 import uk.dupplaw.gitlab.wallboard.domain.Project
 import uk.dupplaw.gitlab.wallboard.domain.Quality
 import java.util.concurrent.ConcurrentHashMap
-import javax.enterprise.context.ApplicationScoped
+import jakarta.enterprise.context.ApplicationScoped
 
 @ApplicationScoped
 class ProjectCache {

@@ -2,7 +2,7 @@ package uk.dupplaw.gitlab.wallboard.config
 
 import io.smallrye.config.ConfigMapping
 import org.eclipse.microprofile.config.inject.ConfigProperty
-import javax.enterprise.context.ApplicationScoped
+import jakarta.enterprise.context.ApplicationScoped
 
 @ApplicationScoped
 data class QualityServiceConfiguration(

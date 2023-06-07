@@ -7,7 +7,7 @@ import io.vertx.mutiny.core.eventbus.EventBus
 import mu.KotlinLogging
 import uk.dupplaw.gitlab.wallboard.domain.Build
 import uk.dupplaw.gitlab.wallboard.domain.Project
-import javax.enterprise.context.ApplicationScoped
+import jakarta.enterprise.context.ApplicationScoped
 
 @ApplicationScoped
 class DomainToMessageConverter(

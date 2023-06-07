@@ -5,7 +5,7 @@ import io.restassured.RestAssured.given
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import uk.dupplaw.gitlab.wallboard.config.SystemConfiguration
-import javax.inject.Inject
+import jakarta.inject.Inject
 
 @QuarkusTest
 class SystemInfoControllerTest {

@@ -7,8 +7,8 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import mu.KotlinLogging
 import uk.dupplaw.gitlab.wallboard.domain.QualityService
-import javax.enterprise.context.ApplicationScoped
-import javax.enterprise.event.Observes
+import jakarta.enterprise.context.ApplicationScoped
+import jakarta.enterprise.event.Observes
 import kotlin.random.Random
 
 @ApplicationScoped
@@ -37,6 +37,7 @@ class ProjectManager(
         updateProjects()
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     fun updateProjects() = runBlocking {
         GlobalScope.launch {
             delay(10_000L)

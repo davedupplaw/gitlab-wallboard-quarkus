@@ -1,11 +1,10 @@
 package uk.dupplaw.gitlab.wallboard.service
 
-import mu.KotlinLogging
+import jakarta.enterprise.context.ApplicationScoped
 import uk.dupplaw.gitlab.wallboard.config.BuildServiceConfiguration
 import uk.dupplaw.gitlab.wallboard.domain.BuildService
 import uk.dupplaw.gitlab.wallboard.domain.Project
 import uk.dupplaw.gitlab.wallboard.service.gitlab.GitLabCIBuildService
-import javax.enterprise.context.ApplicationScoped
 
 @ApplicationScoped
 class AggregatedBuildService(
@@ -18,6 +17,7 @@ class AggregatedBuildService(
                     ?.retrieveBuildInformation(project)
 
     // TODO: This should utilise a mapping in the properties, or use a default
+    @Suppress("UNUSED_PARAMETER")
     private fun dealsWithProject(ignored: Project) = true
 
     private fun buildServices() = buildServiceConfiguration.names.map { makeService(it) }
