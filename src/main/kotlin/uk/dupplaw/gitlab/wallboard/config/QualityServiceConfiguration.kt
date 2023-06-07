@@ -1,8 +1,7 @@
 package uk.dupplaw.gitlab.wallboard.config
 
-import io.smallrye.config.ConfigMapping
-import org.eclipse.microprofile.config.inject.ConfigProperty
 import jakarta.enterprise.context.ApplicationScoped
+import org.eclipse.microprofile.config.inject.ConfigProperty
 
 @ApplicationScoped
 data class QualityServiceConfiguration(
@@ -15,10 +14,5 @@ data class SonarqubeQualityServiceConfiguration(
         @ConfigProperty(name = "quality.service.sonarqube.host") val host: String,
         @ConfigProperty(name = "quality.service.sonarqube.token") val token: String,
         @ConfigProperty(name = "quality.service.sonarqube.projects") val projects: List<String>,
-        val projectMapping: SonarqubeProjectMapping
+        @ConfigProperty(name = "quality.service.sonarqube.projectMapping") val projectMapping: Map<String, Long>
 )
-
-@ConfigMapping(prefix = "quality.service.sonarqube.map", namingStrategy = ConfigMapping.NamingStrategy.VERBATIM)
-fun interface SonarqubeProjectMapping {
-    fun map(): Map<String, Long>
-}

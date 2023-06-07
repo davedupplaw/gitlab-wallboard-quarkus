@@ -5,6 +5,7 @@ import jakarta.enterprise.context.ApplicationScoped
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.runBlocking
+import mu.KotlinLogging
 import uk.dupplaw.gitlab.wallboard.config.SonarqubeQualityServiceConfiguration
 import uk.dupplaw.gitlab.wallboard.domain.QualityService
 import uk.dupplaw.gitlab.wallboard.domain.SonarQuality
@@ -15,10 +16,12 @@ import java.util.*
 class SonarqubeQualityService(
         val config: SonarqubeQualityServiceConfiguration
 ) : QualityService {
+    private val logger = KotlinLogging.logger {}
     private val metrics = listOf("security_review_rating", "reliability_rating", "coverage", "duplicated_lines_density")
 
     override fun allProjects() = flow {
         while (true) {
+            logger.info { "Using project mapping: ${config.projectMapping}" }
             config.projects.asSequence().forEach { componentName ->
                 getQualityMeasures(componentName.trim('\"'))?.let { emit(it) }
             }
@@ -36,8 +39,9 @@ class SonarqubeQualityService(
                     ObjectMapper().readTree(ins)?.let { json ->
                         json["component"]["measures"]?.let { measures ->
                             SonarQuality(
-                                    config.projectMapping.map()[component.sanitize()] ?: -1,
+                                    config.projectMapping[component.sanitize()] ?: -1,
                                     component,
+                                    "https://${config.host}/dashboard?id=$component",
                                     measures.find { it["metric"]?.asText() == "security_review_rating" }?.get("value")?.asInt(),
                                     measures.find { it["metric"]?.asText() == "reliability_rating" }?.get("value")?.asInt(),
                                     measures.find { it["metric"]?.asText() == "coverage" }?.get("value")?.asDouble(),
@@ -63,6 +67,6 @@ fun main() = runBlocking {
                     "com.siemens.mobility.fs:network-config-service",
                     "com.siemens.mobility.fs:fs-ui",
             ),
-            { mapOf() }
+            mapOf()
     )).allProjects().collect { println(it) }
 }

@@ -8,8 +8,8 @@ div.wrapper {
     text-align: center;
     padding: 4px;
     margin: 2px;
-    min-width: 250px;
-    height: 150px;
+    width: 270px;
+    height: 180px;
     background: #666666;
     border-radius: 5px;
 
@@ -53,6 +53,8 @@ div.wrapper {
         padding: 0;
         list-style-type: none;
         line-height: 1.2em;
+        font-weight: bold;
+        font-size: 90%;
       }
     }
 
@@ -96,6 +98,41 @@ div.wrapper {
 
       a {
         color: rgba(0, 0, 0, .4);
+      }
+    }
+
+    .sonar-info {
+      display: flex;
+      flex-wrap: nowrap;
+      flex-direction: row;
+      padding: 0;
+      margin-bottom: 5px;
+      font-size: 80%;
+
+      div {
+        margin: 0;
+        padding: 0;
+        flex-grow: 1;
+        border: 1px solid black;
+
+        span.label {
+          padding: 0;
+          margin: 0;
+          display: block;
+          font-size: 80%;
+          border-bottom: 1px solid black;
+          background: lightgrey;
+          line-height: 1em;
+        }
+
+        span.value {
+          display: block;
+          padding: 0;
+          margin: 0;
+          &.GOOD { background: lightgreen; }
+          &.OK { background: orange; }
+          &.BAD { background: darkred; color: white; }
+        }
       }
     }
   }

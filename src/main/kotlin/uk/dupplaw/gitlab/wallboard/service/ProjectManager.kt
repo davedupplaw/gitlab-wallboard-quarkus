@@ -3,12 +3,12 @@ package uk.dupplaw.gitlab.wallboard.service
 import io.quarkus.runtime.StartupEvent
 import io.quarkus.vertx.ConsumeEvent
 import io.vertx.mutiny.core.eventbus.EventBus
+import jakarta.enterprise.context.ApplicationScoped
+import jakarta.enterprise.event.Observes
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 import mu.KotlinLogging
 import uk.dupplaw.gitlab.wallboard.domain.QualityService
-import jakarta.enterprise.context.ApplicationScoped
-import jakarta.enterprise.event.Observes
 import kotlin.random.Random
 
 @ApplicationScoped
@@ -50,7 +50,10 @@ class ProjectManager(
 
         GlobalScope.launch {
             scmService.retrieveProjects()
-                    .onEach { projectCache[it.id] = it }
+                    .onEach {
+                        projectCache[it.id]?.let { previous -> it.quality = previous.quality }
+                        projectCache[it.id] = it
+                    }
                     .onEach { eventBus.publish("project", it) }
                     .collect { logger.info { "Retrieved project info $it" } }
         }
@@ -70,7 +73,7 @@ class ProjectManager(
                     }
                 }
                 amount = 10_000.0
-                delay(projectCache.projects().size * 250L)
+                delay(projectCache.projects().size * 500L)
             }
         }
     }

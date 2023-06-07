@@ -41,6 +41,7 @@ interface Quality {
 data class SonarQuality(
         override val projectId: Long,
         val component: String,
+        val url: String,
         val securityRating: Int? = null,
         val reliabilityRating: Int? = null,
         val coverage: Double? = null,
