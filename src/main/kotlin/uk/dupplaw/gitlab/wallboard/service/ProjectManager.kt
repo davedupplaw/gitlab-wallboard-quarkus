@@ -21,8 +21,6 @@ class ProjectManager(
 ) {
     private val logger = KotlinLogging.logger {}
 
-    private val buildJobs = mutableMapOf<Long, Job>()
-
     @ConsumeEvent("new-session")
     @Suppress("unused")
     fun newSessionOpened(sessionId: String) = runBlocking {
@@ -65,10 +63,15 @@ class ProjectManager(
                 projectCache.projects().forEachIndexed { i, project ->
                     launch {
                         delay(i * Random.nextDouble(amount).toLong())
-                        buildService.retrieveBuildInformation(project)?.let { build ->
-                            logger.info { "Retrieved project build info $build" }
-                            projectCache[project.id] = build
-                            eventBus.publish("build", build)
+                        try {
+                            buildService.retrieveBuildInformation(project)?.let { build ->
+                                logger.info { "Retrieved project build info $build" }
+                                projectCache[project.id] = build
+                                eventBus.publish("build", build)
+                            }
+                        } catch(e: Exception) {
+                            logger.warn { "Caught exception getting builds: $e" }
+                            logger.warn { "Build will be ignored for project $project" }
                         }
                     }
                 }
