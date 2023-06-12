@@ -23,7 +23,11 @@ class SonarqubeQualityService(
         while (true) {
             logger.info { "Using project mapping: ${config.projectMapping}" }
             config.projects.asSequence().forEach { componentName ->
-                getQualityMeasures(componentName.trim('\"'))?.let { emit(it) }
+                try {
+                    getQualityMeasures(componentName.trim('\"'))?.let { emit(it) }
+                } catch (e: Exception) {
+                    logger.warn(e) { "Caught error getting quality information for $componentName" }
+                }
             }
             delay(10_000L)
         }
