@@ -1,5 +1,6 @@
 package uk.dupplaw.gitlab.wallboard.service
 
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.quarkus.runtime.StartupEvent
 import io.quarkus.vertx.ConsumeEvent
 import io.vertx.mutiny.core.eventbus.EventBus
@@ -7,7 +8,6 @@ import jakarta.enterprise.context.ApplicationScoped
 import jakarta.enterprise.event.Observes
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import mu.KotlinLogging
 import uk.dupplaw.gitlab.wallboard.domain.QualityService
 import kotlin.random.Random
 

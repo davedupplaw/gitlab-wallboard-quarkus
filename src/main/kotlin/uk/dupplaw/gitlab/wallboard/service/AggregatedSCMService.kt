@@ -2,7 +2,7 @@ package uk.dupplaw.gitlab.wallboard.service
 
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import uk.dupplaw.gitlab.wallboard.config.SCMServiceConfiguration
 import uk.dupplaw.gitlab.wallboard.domain.SCMService
 import uk.dupplaw.gitlab.wallboard.service.gitlab.GitLabService

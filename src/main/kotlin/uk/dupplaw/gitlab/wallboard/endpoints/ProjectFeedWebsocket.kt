@@ -2,7 +2,7 @@ package uk.dupplaw.gitlab.wallboard.endpoints
 
 import io.quarkus.vertx.ConsumeEvent
 import io.vertx.mutiny.core.eventbus.EventBus
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import uk.dupplaw.gitlab.wallboard.serialization.JsonEncoder
 import jakarta.enterprise.context.ApplicationScoped
 import jakarta.websocket.*

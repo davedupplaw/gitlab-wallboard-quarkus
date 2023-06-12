@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.ObjectNode
 import io.quarkus.vertx.ConsumeEvent
 import io.vertx.mutiny.core.eventbus.EventBus
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import uk.dupplaw.gitlab.wallboard.domain.Build
 import uk.dupplaw.gitlab.wallboard.domain.Project
 import jakarta.enterprise.context.ApplicationScoped

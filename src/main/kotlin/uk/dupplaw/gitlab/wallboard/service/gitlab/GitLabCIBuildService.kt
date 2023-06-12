@@ -1,7 +1,7 @@
 package uk.dupplaw.gitlab.wallboard.service.gitlab
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import uk.dupplaw.gitlab.wallboard.config.GitLabCIBuildServiceConfiguration
 import uk.dupplaw.gitlab.wallboard.domain.Build
 import uk.dupplaw.gitlab.wallboard.domain.BuildService

@@ -3,7 +3,7 @@ package uk.dupplaw.gitlab.wallboard.service.gitlab
 import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.flow
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import uk.dupplaw.gitlab.wallboard.config.GitLabServiceConfiguration
 import uk.dupplaw.gitlab.wallboard.domain.Project
 import uk.dupplaw.gitlab.wallboard.domain.SCMService

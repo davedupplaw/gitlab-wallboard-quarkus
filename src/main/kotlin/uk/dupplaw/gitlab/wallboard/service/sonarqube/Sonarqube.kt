@@ -5,7 +5,7 @@ import jakarta.enterprise.context.ApplicationScoped
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.runBlocking
-import mu.KotlinLogging
+import io.github.oshai.kotlinlogging.KotlinLogging
 import uk.dupplaw.gitlab.wallboard.config.SonarqubeQualityServiceConfiguration
 import uk.dupplaw.gitlab.wallboard.domain.QualityService
 import uk.dupplaw.gitlab.wallboard.domain.SonarQuality
