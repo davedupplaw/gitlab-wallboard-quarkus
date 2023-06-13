@@ -58,19 +58,3 @@ class SonarqubeQualityService(
 
     private fun String.sanitize() = this.replace(Regex("[.:]"), "-")
 }
-
-fun main() = runBlocking {
-    SonarqubeQualityService(SonarqubeQualityServiceConfiguration(
-            "https://sonarqube.mocca.yunextraffic.cloud",
-            "squ_9320b9efa232d6a8695348f3c00a6cf1c57e3bce",
-            listOf(
-                    "com.siemens.mobility.fs:network-state",
-                    "com.siemens.mobility.fs:cycle-plan-service",
-                    "com.siemens.mobility.fs:decision-engine-service",
-                    "com.siemens.mobility.fs:utc-config-service",
-                    "com.siemens.mobility.fs:network-config-service",
-                    "com.siemens.mobility.fs:fs-ui",
-            ),
-            mapOf()
-    )).allProjects().collect { println(it) }
-}

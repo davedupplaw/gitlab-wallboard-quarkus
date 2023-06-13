@@ -129,7 +129,7 @@ export class ProjectStatusFeedComponent implements OnInit {
 
   private static toLetter(n?: number) {
     if (!n) return null;
-    return String.fromCharCode(n + 65);
+    return String.fromCharCode(n + 64);
   }
 
   private static goodOrBadRating(r: string | null): 'GOOD' | 'OK' | 'BAD' {
