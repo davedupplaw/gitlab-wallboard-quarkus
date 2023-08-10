@@ -8,8 +8,9 @@ import jakarta.enterprise.context.ApplicationScoped
 @ApplicationScoped
 data class SCMServiceConfiguration(
     @ConfigProperty(name = "scm.services") val names: List<String>,
-    val gitLabServiceConfiguration: GitLabServiceConfiguration
+    val gitLabServiceConfiguration: GitLabServiceConfiguration,
 )
+
 
 @ApplicationScoped
 data class GitLabServiceConfiguration(
@@ -23,7 +24,19 @@ data class GitLabServiceConfiguration(
 data class BuildServiceConfiguration(
     @ConfigProperty(name = "build.services") val names: List<String>,
     val gitlabCIBuildServiceConfiguration: GitLabCIBuildServiceConfiguration,
+    val buildServiceJobIcons: JobIcons
 )
+
+@ApplicationScoped
+data class JobIcons(
+    @ConfigProperty(name = "build.service.jobs") val jobs: String,
+//    val jobDisplayText: JobIconNames,
+)
+
+//@ConfigMapping(prefix = "build.service.jobs", namingStrategy = ConfigMapping.NamingStrategy.VERBATIM)
+//fun interface JobIconNames {
+//    fun nameMapping(): Map<String, String>
+//}
 
 @ApplicationScoped
 data class GitLabCIBuildServiceConfiguration(

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import {HttpClient} from '@angular/common/http';
-import {Observable} from 'rxjs';
-import {SystemInfo} from './shared/SystemInfo';
+import {map, Observable} from 'rxjs';
+import {SystemInfo, Toggles} from './shared/SystemInfo';
 
 @Injectable({
   providedIn: 'root'
@@ -12,5 +12,9 @@ export class SystemInfoService {
 
   public getInfo(): Observable<SystemInfo> {
     return this.httpClient.get<SystemInfo>('/api/system/info');
+  }
+
+  public getToggles(): Observable<Toggles> {
+    return this.getInfo().pipe(map(it => it.toggles));
   }
 }

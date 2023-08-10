@@ -6,10 +6,10 @@ interface AllowedOverWebsocket
 
 @RegisterForReflection
 data class Project(
-        val id: Long,
-        val name: String,
-        val projectUrl: String,
-        var quality: Quality? = null
+    val id: Long,
+    val name: String,
+    val projectUrl: String,
+    var quality: Quality? = null
 ) : AllowedOverWebsocket
 
 enum class BuildStatus {
@@ -22,15 +22,30 @@ enum class BuildStatus {
 
 @RegisterForReflection
 data class Build(
-        val id: Long,
-        val projectId: Long,
-        val buildUrl: String,
-        val status: BuildStatus,
-        val lastBuildTimestamp: String,
-        val user: String,
-        val textStatus: String? = null,
-        val currentStatusReasons: List<String> = listOf()
+    val id: Long,
+    val projectId: Long,
+    val buildUrl: String,
+    val status: BuildStatus,
+    val lastBuildTimestamp: String,
+    val user: String,
+    val textStatus: String? = null,
+    val currentStatusReasons: List<String> = listOf()
 ) : AllowedOverWebsocket
+
+interface JobInfo {
+    val projectId: Long
+    val type: String
+}
+
+@RegisterForReflection
+data class JobPassFailInfo(
+    override val projectId: Long,
+    val jobName: String,
+    val displayAs: String,
+    val status: BuildStatus,
+) : JobInfo {
+    override val type: String = "jobPassFail"
+}
 
 interface Quality {
     val projectId: Long
@@ -39,13 +54,15 @@ interface Quality {
 
 @RegisterForReflection
 data class SonarQuality(
-        override val projectId: Long,
-        val component: String,
-        val url: String,
-        val securityRating: Int? = null,
-        val reliabilityRating: Int? = null,
-        val coverage: Double? = null,
-        val duplications: Double? = null
+    override val projectId: Long,
+    val component: String,
+    val url: String,
+    val securityRating: Int? = null,
+    val reliabilityRating: Int? = null,
+    val coverage: Double? = null,
+    val duplications: Double? = null,
+    val codeSmellCount: Int? = null,
+    val bugCount: Int? = null,
 ) : AllowedOverWebsocket, Quality {
     override val type: String = "sonar"
 }

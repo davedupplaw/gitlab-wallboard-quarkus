@@ -17,7 +17,15 @@ class SonarqubeQualityService(
         val config: SonarqubeQualityServiceConfiguration
 ) : QualityService {
     private val logger = KotlinLogging.logger {}
-    private val metrics = listOf("security_review_rating", "reliability_rating", "coverage", "duplicated_lines_density")
+    private val metrics = listOf(
+        "security_review_rating",
+        "reliability_rating",
+        "coverage",
+        "duplicated_lines_density",
+        "sqale_rating",
+        "bugs",
+        "code_smells"
+    )
 
     override fun allProjects() = flow {
         while (true) {
@@ -58,3 +66,15 @@ class SonarqubeQualityService(
 
     private fun String.sanitize() = this.replace(Regex("[.:]"), "-")
 }
+
+fun main() = runBlocking {
+    SonarqubeQualityService(SonarqubeQualityServiceConfiguration(
+        "https://sonarqube.mocca.yunextraffic.cloud",
+        "squ_c1eed6ba81a2fd9611e4bf4f8d08bce61fb233e5",
+        listOf(
+            "com.siemens.mobility.fs:network-state",
+        ),
+        mapOf("com.siemens.mobility.fs:network-state" to 3935)
+    )).allProjects().collect { println(it) }
+}
+

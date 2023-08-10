@@ -1,4 +1,4 @@
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {ProjectFeedMessage, ProjectFeedService} from '../project-feed.service';
 import {SubSink} from 'subsink';
 import * as d3 from 'd3';
@@ -7,6 +7,8 @@ import {Build, preferredBuildOrder} from "../shared/Build";
 import {BehaviorSubject, combineLatest, Observer, Subject} from 'rxjs';
 import * as moment from 'moment';
 import {Quality, SonarqubeQuality} from '../shared/Quality';
+import {SystemInfoService} from "../system-info.service";
+import {DefaultToggles, SortOrder, Toggles} from "../shared/SystemInfo";
 
 type ProjectBuild = { project: Project, build?: Build };
 
@@ -15,7 +17,7 @@ type ProjectBuild = { project: Project, build?: Build };
   templateUrl: './project-status-feed.component.html',
   styleUrls: ['./project-status-feed.component.scss']
 })
-export class ProjectStatusFeedComponent implements OnInit {
+export class ProjectStatusFeedComponent implements OnInit, OnDestroy {
   @ViewChild("fixture") fixture?: ElementRef;
   private subSink = new SubSink();
   private feed: Subject<ProjectFeedMessage>;
@@ -23,13 +25,13 @@ export class ProjectStatusFeedComponent implements OnInit {
   private _builds: { [key: string]: Build } = {}
   private projects$: BehaviorSubject<{ [key: string]: Project }> = new BehaviorSubject(this._projects);
   private builds$: BehaviorSubject<{ [key: string]: Build }> = new BehaviorSubject(this._builds);
+  private toggles: Toggles = new DefaultToggles();
 
-  constructor(private projectFeed: ProjectFeedService) {
+  constructor(private projectFeed: ProjectFeedService, private systemService: SystemInfoService) {
     this.feed = this.projectFeed.connect();
   }
 
   private static isSonarQualityInfo(quality: Quality | undefined): quality is SonarqubeQuality {
-    console.log("Testing quality", quality);
     return !!quality && !!(quality as SonarqubeQuality).securityRating;
   }
 
@@ -41,7 +43,7 @@ export class ProjectStatusFeedComponent implements OnInit {
 
     // <div class="title"><a href={{url}}>{{name}}</a></div>
     card.append('div').append('a').attr('class', 'title')
-        .call(ProjectStatusFeedComponent.updateCardTitle);
+      .call(ProjectStatusFeedComponent.updateCardTitle);
 
     // <div class="project-id">{{id}}</div>
     card.append('div').attr('class', 'project-id').html(d => `id: ${d.project.id}`);
@@ -83,48 +85,48 @@ export class ProjectStatusFeedComponent implements OnInit {
 
   private static updateBuildInfo(x: d3.Selection<any, ProjectBuild, any, any>): d3.Selection<any, ProjectBuild, any, any> {
     return x.attr('href', d => d.build?.buildUrl ?? '')
-            .html(d => `#${d.build?.id ?? '??'}`)
+      .html(d => `#${d.build?.id ?? '??'}`)
   }
 
   private static createQualitySection(x: d3.Selection<any, ProjectBuild, any, any>): d3.Selection<any, ProjectBuild, any, any> {
     return x.style('display', d => ProjectStatusFeedComponent.isSonarQualityInfo(d.project.quality) ? 'flex' : 'none')
-            .call(_ => {
-              x.append('div').classed('reliability', true)
-              x.append('div').classed('coverage', true)
-              x.append('div').classed('duplications', true)
-              x.append('div').classed('security', true)
-            })
-            .call(ProjectStatusFeedComponent.updateQuality);
+      .call(_ => {
+        x.append('div').classed('reliability', true)
+        x.append('div').classed('coverage', true)
+        x.append('div').classed('duplications', true)
+        x.append('div').classed('security', true)
+      })
+      .call(ProjectStatusFeedComponent.updateQuality);
   }
 
   private static updateQuality(x: d3.Selection<any, ProjectBuild, any, any>): d3.Selection<any, ProjectBuild, any, any> {
     return x.style('display', d => ProjectStatusFeedComponent.isSonarQualityInfo(d.project.quality) ? 'flex' : 'none')
-            .call(x => {
-              x.select('.reliability')
-               .html(d => {
-                 const reliability = ProjectStatusFeedComponent.toLetter((d.project.quality as SonarqubeQuality)?.reliabilityRating);
-                 const style = ProjectStatusFeedComponent.goodOrBadRating(reliability)
-                 return `<span class="label">reliability</span><span class="value ${style}">${reliability}</span>`;
-               });
-                x.select('.coverage')
-                 .html(d => {
-                   const coverage = (d.project.quality as SonarqubeQuality)?.coverage;
-                   const style = ProjectStatusFeedComponent.goodOrBadValue(coverage, true);
-                   return `<span class="label">coverage</span><span class="value ${style}">${coverage}%</span>`
-                 })
-                x.select('.duplications')
-                 .html(d => {
-                   const duplications = (d.project.quality as SonarqubeQuality)?.duplications;
-                   const style = ProjectStatusFeedComponent.goodOrBadValue(duplications, false);
-                   return `<span class="label">duplications</span><span class="value ${style}">${duplications}%</span>`
-                 })
-              x.select('.security')
-               .html(d => {
-                 const security = ProjectStatusFeedComponent.toLetter((d.project.quality as SonarqubeQuality)?.securityRating);
-                 const style = ProjectStatusFeedComponent.goodOrBadRating(security ?? 'Z')
-                 return `<span class="label">security</span><span class="value ${style}">${security}</span>`;
-               });
-            });
+      .call(x => {
+        x.select('.reliability')
+          .html(d => {
+            const reliability = ProjectStatusFeedComponent.toLetter((d.project.quality as SonarqubeQuality)?.reliabilityRating);
+            const style = ProjectStatusFeedComponent.goodOrBadRating(reliability)
+            return `<span class="label">reliability</span><span class="value ${style}">${reliability}</span>`;
+          });
+        x.select('.coverage')
+          .html(d => {
+            const coverage = (d.project.quality as SonarqubeQuality)?.coverage;
+            const style = ProjectStatusFeedComponent.goodOrBadValue(coverage, true);
+            return `<span class="label">coverage</span><span class="value ${style}">${coverage}%</span>`
+          })
+        x.select('.duplications')
+          .html(d => {
+            const duplications = (d.project.quality as SonarqubeQuality)?.duplications;
+            const style = ProjectStatusFeedComponent.goodOrBadValue(duplications, false);
+            return `<span class="label">duplications</span><span class="value ${style}">${duplications}%</span>`
+          })
+        x.select('.security')
+          .html(d => {
+            const security = ProjectStatusFeedComponent.toLetter((d.project.quality as SonarqubeQuality)?.securityRating);
+            const style = ProjectStatusFeedComponent.goodOrBadRating(security ?? 'Z')
+            return `<span class="label">security</span><span class="value ${style}">${security}</span>`;
+          });
+      });
   }
 
   private static toLetter(n?: number) {
@@ -176,12 +178,35 @@ export class ProjectStatusFeedComponent implements OnInit {
 
   private static updateBuildCardClass(x: d3.Selection<any, ProjectBuild, any, any>): d3.Selection<any, ProjectBuild, any, any> {
     return x.classed('success', d => d.build?.status == 'SUCCESS')
-            .classed('fail', d => d.build?.status == 'FAIL')
-            .classed('running', d => d.build?.status == 'RUNNING')
-            .classed('warning', d => d.build?.status == 'WARNING');
+      .classed('fail', d => d.build?.status == 'FAIL')
+      .classed('running', d => d.build?.status == 'RUNNING')
+      .classed('warning', d => d.build?.status == 'WARNING');
   }
 
   ngOnInit(): void {
+    this.subscribeToWebsocketFeed();
+    this.subscribeToChangesInProjectsOrBuilds();
+    this.subscribeToSystemToggles();
+  }
+
+  ngOnDestroy() {
+    this.subSink.unsubscribe();
+  }
+
+  private subscribeToSystemToggles() {
+    this.subSink.sink = this.systemService.getToggles().subscribe(toggles => {
+      this.toggles = toggles;
+      console.log("Got these toggles", this.toggles);
+    });
+  }
+
+  private subscribeToChangesInProjectsOrBuilds() {
+    this.subSink.sink = combineLatest([
+      this.projects$, this.builds$
+    ]).subscribe(([projects, builds]) => this.updateCards(projects, builds));
+  }
+
+  private subscribeToWebsocketFeed() {
     this.subSink.sink = this.feed.subscribe({
       next: (message: ProjectFeedMessage) => {
         switch (message.type) {
@@ -196,10 +221,6 @@ export class ProjectStatusFeedComponent implements OnInit {
         }
       }
     } as Observer<ProjectFeedMessage>);
-
-    this.subSink.sink = combineLatest([
-      this.projects$, this.builds$
-    ]).subscribe(([projects, builds]) => this.updateCards(projects, builds));
   }
 
   private updateOrAddProject(project: Project) {
@@ -222,6 +243,20 @@ export class ProjectStatusFeedComponent implements OnInit {
       (p: Project) => ({project: p, build: builds[p.id]} as ProjectBuild)
     );
 
+    const sort = (a: ProjectBuild, b: ProjectBuild) => {
+      console.log("Sorting");
+      switch (this.toggles.sortOrder) {
+        case SortOrder.ALPHABETICAL:
+          console.log("Sorting alphabetically");
+          return d3.ascending(a.project.name.toLocaleLowerCase(), b.project.name.toLocaleLowerCase());
+        case SortOrder.TIME :
+          const d1 = new Date(a.build?.lastBuildTimestamp ?? "1970-01-01T00:00:00");
+          const d2 = new Date(b.build?.lastBuildTimestamp ?? "1970-01-01T00:00:00");
+          console.log(d1, d2);
+          return d3.descending(d1, d2);
+      }
+    };
+
     d3.select(this.fixture?.nativeElement)
       .selectAll('div.build')
       .data(
@@ -229,7 +264,7 @@ export class ProjectStatusFeedComponent implements OnInit {
           d3.ascending(
             preferredBuildOrder.indexOf(a.build?.status ?? 'UNKNOWN'),
             preferredBuildOrder.indexOf(b.build?.status ?? 'UNKNOWN')
-          ) || d3.ascending(a.project.name.toLocaleLowerCase(), b.project.name.toLocaleLowerCase())
+          ) || sort(a, b)
         ),
         d => (d as ProjectBuild).project.id
       )
@@ -240,14 +275,13 @@ export class ProjectStatusFeedComponent implements OnInit {
       )
       .call(x => {
         x.call(x => x.select('.title').call(ProjectStatusFeedComponent.updateCardTitle))
-         .call(x => x.select('.build-id a').call(ProjectStatusFeedComponent.updateBuildInfo))
-         .call(x => x.select('.calendar').call(ProjectStatusFeedComponent.updateBuildTime))
-         .call(x => x.select('.user').call(ProjectStatusFeedComponent.updateBuildUser))
-         .call(x => x.select('.status').call(ProjectStatusFeedComponent.updateStatus))
-         .call(x => x.select('.status-reason').call(ProjectStatusFeedComponent.updateReason))
-         .call(x => x.select('.sonar-info').call(ProjectStatusFeedComponent.updateQuality))
-         .call(ProjectStatusFeedComponent.updateBuildCardClass)
-      })
-    ;
+          .call(x => x.select('.build-id a').call(ProjectStatusFeedComponent.updateBuildInfo))
+          .call(x => x.select('.calendar').call(ProjectStatusFeedComponent.updateBuildTime))
+          .call(x => x.select('.user').call(ProjectStatusFeedComponent.updateBuildUser))
+          .call(x => x.select('.status').call(ProjectStatusFeedComponent.updateStatus))
+          .call(x => x.select('.status-reason').call(ProjectStatusFeedComponent.updateReason))
+          .call(x => x.select('.sonar-info').call(ProjectStatusFeedComponent.updateQuality))
+          .call(ProjectStatusFeedComponent.updateBuildCardClass)
+      });
   }
 }
