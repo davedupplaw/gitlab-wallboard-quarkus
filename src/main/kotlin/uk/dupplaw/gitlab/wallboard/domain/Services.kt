@@ -34,5 +34,5 @@ fun interface JobService {
  */
 interface QualityService {
     fun allProjects(): Flow<Quality>
-    fun getQualityMeasures(component: String): Quality?
+    fun getQualityMeasures(component: String, branch: String): Quality?
 }
